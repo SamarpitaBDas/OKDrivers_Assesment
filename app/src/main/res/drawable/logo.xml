@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+
+    <!-- Main circular mark -->
+    <path
+        android:fillColor="#0F7661"
+        android:pathData="M60,8
+            A52,52 0,1 0,60,112
+            A52,52 0,1 0,60,8" />
+
+    <!-- Road / safety symbol -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M43,92
+            L50,92
+            L55,28
+            L65,28
+            L70,92
+            L77,92
+            L69,20
+            L51,20
+            Z" />
+
+    <!-- Center road marking -->
+    <path
+        android:fillColor="#0F7661"
+        android:pathData="M58,35
+            L62,35
+            L62,48
+            L58,48
+            Z
+            M58,55
+            L62,55
+            L62,68
+            L58,68
+            Z
+            M58,75
+            L62,75
+            L62,88
+            L58,88
+            Z" />
+
+</vector>

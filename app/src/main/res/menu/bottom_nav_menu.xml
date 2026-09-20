@@ -4,18 +4,22 @@
 
     <item
         android:id="@+id/homeFragment"
-        android:title="Home" />
+        android:title="Home"
+        android:icon="@drawable/Home" />
 
     <item
         android:id="@+id/logsFragment"
-        android:title="Logs" />
+        android:title="Logs"
+        android:icon="@drawable/File_dock" />
 
     <item
         android:id="@+id/communityFragment"
-        android:title="Community" />
+        android:title="Community"
+        android:icon="@drawable/Group" />
 
     <item
         android:id="@+id/settingsFragment"
-        android:title="Settings" />
+        android:title="Settings"
+        android:icon="@drawable/Setting_alt_line" />
 
 </menu>
