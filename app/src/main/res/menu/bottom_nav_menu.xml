@@ -5,21 +5,21 @@
     <item
         android:id="@+id/homeFragment"
         android:title="Home"
-        android:icon="@drawable/Home" />
+        android:icon="@drawable/home" />
 
     <item
         android:id="@+id/logsFragment"
         android:title="Logs"
-        android:icon="@drawable/File_dock" />
+        android:icon="@drawable/file_dock" />
 
     <item
         android:id="@+id/communityFragment"
         android:title="Community"
-        android:icon="@drawable/Group" />
+        android:icon="@drawable/group" />
 
     <item
         android:id="@+id/settingsFragment"
         android:title="Settings"
-        android:icon="@drawable/Setting_alt_line" />
+        android:icon="@drawable/setting_alt_line" />
 
 </menu>

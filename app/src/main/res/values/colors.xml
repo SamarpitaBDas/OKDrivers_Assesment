@@ -2,4 +2,17 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="ok_green">#0F7661</color>
+    <color name="ok_green_dark">#064E3B</color>
+    <color name="ok_green_light">#D1FAE5</color>
+    <color name="ok_bg">#F7F9F8</color>
+    <color name="ok_surface">#FFFFFF</color>
+    <color name="ok_text">#17211F</color>
+    <color name="ok_secondary">#66736F</color>
+    <color name="ok_red">#DC2626</color>
+    <color name="ok_orange">#F59E0B</color>
+    <color name="ok_blue">#2563EB</color>
+    <color name="ok_dark">#10252D</color>
+    <color name="ok_dark_card">#183541</color>
+    <color name="ok_border">#DDE7E3</color>
 </resources>
