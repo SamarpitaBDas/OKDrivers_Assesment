@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/ok_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Allow Permissions"
+            android:gravity="center"
+            android:textColor="@color/ok_text"
+            android:textSize="25sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="We need a few permissions to collect sensor data and keep you safe."
+            android:gravity="center"
+            android:textColor="@color/ok_secondary"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:orientation="vertical">
+
+            <TextView android:layout_width="match_parent" android:layout_height="56dp"
+                android:gravity="center_vertical" android:text="📍  Location
+     For GPS and location tracking"
+                android:textColor="@color/ok_text"/>
+            <TextView android:layout_width="match_parent" android:layout_height="56dp"
+                android:gravity="center_vertical" android:text="▣  Camera
+     For driver monitoring (DMS)"
+                android:textColor="@color/ok_text"/>
+            <TextView android:layout_width="match_parent" android:layout_height="56dp"
+                android:gravity="center_vertical" android:text="🎙  Microphone
+     For voice interaction"
+                android:textColor="@color/ok_text"/>
+            <TextView android:layout_width="match_parent" android:layout_height="56dp"
+                android:gravity="center_vertical" android:text="⚙  Sensors
+     For motion and vehicle data"
+                android:textColor="@color/ok_text"/>
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnContinue"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="32dp"
+            android:text="Continue"
+            android:textAllCaps="false"
+            app:cornerRadius="28dp"/>
+    </LinearLayout>
+</ScrollView>
