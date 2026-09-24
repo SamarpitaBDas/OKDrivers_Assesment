@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/ok_bg">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="20dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+            <TextView android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1"
+                android:gravity="center" android:text="Live" android:textColor="@color/ok_green"
+                android:textStyle="bold"/>
+            <TextView android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1"
+                android:gravity="center" android:text="History" android:textColor="@color/ok_secondary"/>
+        </LinearLayout>
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:padding="16dp" android:text="✣  Accelerometer
+    X: 0.02   Y: 0.01   Z: 0.98 G
+
+◉  Gyroscope
+    Pitch: 0.5°   Roll: -0.2°   Yaw: 1.2°
+
+📍  GPS
+    Lat: 28.6199°   Long: 77.2090°
+    Speed: 48 km/h   Heading: NE
+
+▣  Battery
+    78%   Charging: No
+
+⌁  Network
+    Online (4G)
+
+▣  Vehicle Telemetry
+    Speed: 48 km/h   RPM: 1820
+    Engine Load: 32%  Temp: 87°C
+
+◷  Timestamp
+    2026-09-20 09:41:23"
+            android:textColor="@color/ok_text" android:textSize="14sp"/>
+    </LinearLayout>
+</ScrollView>
