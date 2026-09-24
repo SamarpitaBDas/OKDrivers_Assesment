@@ -1,60 +1,186 @@
 package com.example.okdrivers.ui.home
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.location.LocationManager
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
+
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+
 import com.example.okdrivers.R
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [HomeFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-class HomeFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+class HomeFragment : Fragment(R.layout.fragment_home) {
+    private lateinit var ivProfile: ImageView
+    private lateinit var cardSystemStatus: LinearLayout
+    private lateinit var cardDriverState: LinearLayout
+    private lateinit var cardVehicleHealth: LinearLayout
+    private lateinit var cardLocation: LinearLayout
+    private lateinit var cardNetwork: LinearLayout
+    private lateinit var tvDriverState: TextView
+    private lateinit var tvVehicleHealth: TextView
+    private lateinit var tvLatitude: TextView
+    private lateinit var tvLongitude: TextView
+    private lateinit var tvNetwork: TextView
+    private val locationPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+            val fineLocation =
+                permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
+            val coarseLocation =
+                permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+            if (fineLocation || coarseLocation) {
+                updateLocation()
+            } else {
+                tvLatitude.text = "Permission denied"
+                tvLongitude.text = "Enable location"
+            }
+        }
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?
+    ) {
+        super.onViewCreated(view, savedInstanceState)
+        ivProfile = view.findViewById(R.id.ivProfile)
+        cardSystemStatus = view.findViewById(R.id.cardSystemStatus)
+        cardDriverState =view.findViewById(R.id.cardDriverState)
+        cardVehicleHealth =view.findViewById(R.id.cardVehicleHealth)
+        cardLocation = view.findViewById(R.id.cardLocation)
+        cardNetwork = view.findViewById(R.id.cardNetwork)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+
+        tvDriverState = view.findViewById(R.id.tvDriverState)
+        tvVehicleHealth = view.findViewById(R.id.tvVehicleHealth)
+        tvLatitude = view.findViewById(R.id.tvLatitude)
+        tvLongitude = view.findViewById(R.id.tvLongitude)
+        tvNetwork = view.findViewById(R.id.tvNetwork)
+        tvDriverState.text = "Alertness: Good"
+        tvVehicleHealth.text = "No issues"
+        setupClickListeners()
+        updateNetworkStatus()
+        checkLocationPermission()
+
+    }
+    private fun setupClickListeners() {
+        ivProfile.setOnClickListener {
+            Toast.makeText(
+                requireContext(),
+                "Profile clicked",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+        cardSystemStatus.setOnClickListener {
+            Toast.makeText(
+                requireContext(),
+                "All systems are being monitored",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+        cardDriverState.setOnClickListener {
+            Toast.makeText(
+                requireContext(),
+                "Driver State clicked",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+        cardVehicleHealth.setOnClickListener {
+            Toast.makeText(
+                requireContext(),
+                "Vehicle Health clicked",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+        cardLocation.setOnClickListener {
+            checkLocationPermission()
+        }
+        cardNetwork.setOnClickListener {
+            updateNetworkStatus()
         }
     }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false)
+    private fun updateNetworkStatus() {
+        val connectivityManager =
+            requireContext().getSystemService(
+                Context.CONNECTIVITY_SERVICE
+            ) as ConnectivityManager
+        val network =
+            connectivityManager.activeNetwork
+        val capabilities =
+            connectivityManager.getNetworkCapabilities(network)
+        val connected =
+            capabilities?.hasCapability(
+                NetworkCapabilities.NET_CAPABILITY_INTERNET
+            ) == true
+        if (connected) {
+            tvNetwork.text = "Online"
+        } else {
+            tvNetwork.text = "Offline"
+        }
     }
-
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment HomeFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            HomeFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
+    private fun checkLocationPermission() {
+        val fineLocationGranted =
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        val coarseLocationGranted =
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        if (fineLocationGranted || coarseLocationGranted) {
+            updateLocation()
+        } else {
+            locationPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        }
+    }
+    private fun updateLocation() {
+        val locationManager =
+            requireContext().getSystemService(
+                Context.LOCATION_SERVICE
+            ) as LocationManager
+        val provider: String? = when {
+            locationManager.isProviderEnabled(
+                LocationManager.GPS_PROVIDER
+            ) -> LocationManager.GPS_PROVIDER
+            locationManager.isProviderEnabled(
+                LocationManager.NETWORK_PROVIDER
+            ) -> LocationManager.NETWORK_PROVIDER
+            else -> null
+        }
+        if (provider == null) {
+            tvLatitude.text = "GPS unavailable"
+            tvLongitude.text = "Turn on location"
+            return
+        }
+        try {
+            val location =
+                locationManager.getLastKnownLocation(provider)
+            if (location != null) {
+                tvLatitude.text = String.format("Lat %.4f°", location.latitude)
+                tvLongitude.text = String.format("Long %.4f°", location.longitude)
+            } else {
+                tvLatitude.text = "Finding location..."
+                tvLongitude.text = "Please wait"
             }
+        } catch (e: SecurityException) {
+            tvLatitude.text = "Location unavailable"
+            tvLongitude.text = "Permission required"
+        }
     }
 }

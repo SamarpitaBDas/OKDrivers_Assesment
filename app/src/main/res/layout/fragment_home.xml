@@ -1,92 +1,291 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/ok_bg">
+    android:fillViewport="true"
+    android:background="#F7F8F4">
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingTop="18dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="24dp">
 
+        <!-- HEADER -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical">
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content"
-                    android:layout_weight="1" android:text="okDriver"
-                    android:textColor="@color/ok_text" android:textSize="24sp" android:textStyle="bold"/>
-                <ImageView android:layout_width="36dp" android:layout_height="36dp"
-                    android:src="@drawable/user" android:contentDescription="Profile"/>
+                <ImageView
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:contentDescription="okDriver logo"
+                    android:src="@drawable/logo" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="okDriver"
+                    android:textColor="#18312B"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
             </LinearLayout>
 
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:layout_marginTop="16dp" app:cardBackgroundColor="@color/ok_green"
-                app:cardCornerRadius="18dp">
+            <ImageView
+                android:id="@+id/ivProfile"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:background="@drawable/home_icon_circle"
+                android:contentDescription="Profile"
+                android:padding="8dp"
+                android:src="@drawable/user" />
+        </LinearLayout>
 
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:orientation="vertical" android:padding="18dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="◉  All Systems Normal" android:textColor="@android:color/white"
-                        android:textSize="18sp" android:textStyle="bold"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp" android:text="Monitoring your drive..."
-                        android:textColor="@android:color/white"/>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+        <!-- ALL SYSTEMS NORMAL -->
+        <LinearLayout
+            android:id="@+id/cardSystemStatus"
+            android:layout_width="match_parent"
+            android:layout_height="94dp"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/home_status_card"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:layout_marginTop="12dp">
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="0dp" android:layout_height="120dp" android:layout_weight="1"
-                    android:layout_marginEnd="6dp" app:cardCornerRadius="16dp">
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
-                        android:gravity="center" android:orientation="vertical">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="Driver State" android:textColor="@color/ok_secondary"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp" android:text="● Attentive"
-                            android:textColor="@color/ok_green" android:textStyle="bold"/>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="0dp" android:layout_height="120dp" android:layout_weight="1"
-                    android:layout_marginStart="6dp" app:cardCornerRadius="16dp">
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
-                        android:gravity="center" android:orientation="vertical">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="Vehicle Health" android:textColor="@color/ok_secondary"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp" android:text="✓ No issues"
-                            android:textColor="@color/ok_green" android:textStyle="bold"/>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/home_status_icon"
+                android:contentDescription="System status"
+                android:padding="11dp"
+                android:src="@drawable/check_ring_round" />
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:layout_marginTop="12dp">
-                <TextView android:layout_width="0dp" android:layout_height="90dp" android:layout_weight="1"
-                    android:padding="12dp" android:text="📍 Location
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-Lat 28.61° N
-Long 77.20° E"
-                    android:textColor="@color/ok_text"/>
-                <TextView android:layout_width="0dp" android:layout_height="90dp" android:layout_weight="1"
-                    android:padding="12dp" android:text="⌁ Network
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="All Systems Normal"
+                    android:textColor="#FFFFFF"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
 
-Online"
-                    android:textColor="@color/ok_text"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Monitoring your drive..."
+                    android:textColor="#E3F5EF"
+                    android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>
-    </ScrollView>
-</LinearLayout>
+
+        <!-- DRIVER STATE + VEHICLE HEALTH -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:id="@+id/cardDriverState"
+                android:layout_width="0dp"
+                android:layout_height="178dp"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/home_info_card"
+                android:clickable="true"
+                android:focusable="true"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <ImageView
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
+                    android:background="@drawable/home_icon_circle"
+                    android:contentDescription="Driver state"
+                    android:padding="10dp"
+                    android:src="@drawable/mic" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="Driver State"
+                    android:textColor="#20332E"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvDriverState"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Alertness: Good"
+                    android:textColor="#16856D"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/cardVehicleHealth"
+                android:layout_width="0dp"
+                android:layout_height="178dp"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/home_info_card"
+                android:clickable="true"
+                android:focusable="true"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <ImageView
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
+                    android:background="@drawable/home_icon_circle"
+                    android:contentDescription="Vehicle health"
+                    android:padding="10dp"
+                    android:src="@drawable/speed" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="Vehicle Health"
+                    android:textColor="#20332E"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvVehicleHealth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="No issues"
+                    android:textColor="#16856D"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- LOCATION + NETWORK -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:id="@+id/cardLocation"
+                android:layout_width="0dp"
+                android:layout_height="178dp"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/home_info_card"
+                android:clickable="true"
+                android:focusable="true"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <ImageView
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
+                    android:background="@drawable/home_icon_circle"
+                    android:contentDescription="Location"
+                    android:padding="10dp"
+                    android:src="@drawable/pin" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="Location"
+                    android:textColor="#20332E"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvLatitude"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:text="Lat 26.6139° N"
+                    android:textColor="#61716C"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/tvLongitude"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Long 77.2090° E"
+                    android:textColor="#61716C"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/cardNetwork"
+                android:layout_width="0dp"
+                android:layout_height="178dp"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/home_info_card"
+                android:clickable="true"
+                android:focusable="true"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <ImageView
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
+                    android:background="@drawable/home_icon_circle"
+                    android:contentDescription="Network"
+                    android:padding="10dp"
+                    android:src="@drawable/group" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="Network"
+                    android:textColor="#20332E"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvNetwork"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Online"
+                    android:textColor="#16856D"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
