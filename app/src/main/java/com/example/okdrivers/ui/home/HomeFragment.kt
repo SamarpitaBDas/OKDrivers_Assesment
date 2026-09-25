@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -21,17 +22,16 @@ import androidx.lifecycle.repeatOnLifecycle
 
 import com.example.okdrivers.R
 import com.example.okdrivers.sensors.GpsLocationManager
+import com.example.okdrivers.sensors.NetworkStatusManager
+import com.example.okdrivers.sensors.VehicleTelemetrySimulator
 
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 import kotlinx.coroutines.launch
-//import com.example.okdrivers.sensors.BatteryStatusManager
-import com.example.okdrivers.sensors.NetworkStatusManager
 
 @AndroidEntryPoint
 class HomeFragment : Fragment(R.layout.fragment_home) {
-
 
     private lateinit var ivProfile: ImageView
 
@@ -49,10 +49,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     @Inject
     lateinit var gpsLocationManager: GpsLocationManager
-//    @Inject
-//    lateinit var batteryStatusManager: BatteryStatusManager
+
     @Inject
     lateinit var networkStatusManager: NetworkStatusManager
+
+    @Inject
+    lateinit var vehicleTelemetrySimulator: VehicleTelemetrySimulator
 
     private val locationPermissionLauncher =
         registerForActivityResult(
@@ -79,7 +81,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     ) {
         super.onViewCreated(view, savedInstanceState)
 
-        ivProfile = view.findViewById(R.id.ivProfile)
+        ivProfile =
+            view.findViewById(R.id.ivProfile)
 
         cardSystemStatus =
             view.findViewById(R.id.cardSystemStatus)
@@ -119,13 +122,19 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         updateNetworkStatus()
 
         checkLocationPermission()
-//        startBatteryUpdates()
-//        startNetworkUpdates()
+
+        // Temporary telemetry verification
+        startTelemetryTest()
+
+        // NetworkCallback verification was already completed.
+        // Keep this commented for now.
+        // startNetworkUpdates()
     }
 
     private fun setupClickListeners() {
 
         ivProfile.setOnClickListener {
+
             Toast.makeText(
                 requireContext(),
                 "Profile clicked",
@@ -134,6 +143,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
 
         cardSystemStatus.setOnClickListener {
+
             Toast.makeText(
                 requireContext(),
                 "All systems are being monitored",
@@ -142,6 +152,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
 
         cardDriverState.setOnClickListener {
+
             Toast.makeText(
                 requireContext(),
                 "Driver State clicked",
@@ -150,6 +161,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
 
         cardVehicleHealth.setOnClickListener {
+
             Toast.makeText(
                 requireContext(),
                 "Vehicle Health clicked",
@@ -158,10 +170,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
 
         cardLocation.setOnClickListener {
+
             checkLocationPermission()
         }
 
         cardNetwork.setOnClickListener {
+
             Toast.makeText(
                 requireContext(),
                 "Network status is monitored automatically",
@@ -169,29 +183,48 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             ).show()
         }
     }
-//    private fun startBatteryUpdates() {
-//
-//        viewLifecycleOwner.lifecycleScope.launch {
-//
-//            viewLifecycleOwner.repeatOnLifecycle(
-//                Lifecycle.State.STARTED
-//            ) {
-//
-//                batteryStatusManager
-//                    .observeBattery()
-//                    .collect { battery ->
-//
-//                        // Temporary verification
-//                        android.util.Log.d(
-//                            "OKDRIVER_BATTERY",
-//                            "Battery: ${battery.batteryPercentage}% " +
-//                                    "Charging: ${battery.isCharging}"
-//                        )
-//                    }
-//            }
-//        }
-//    }
 
+    /**
+     * Temporary telemetry test.
+     *
+     * This collects simulated vehicle telemetry and
+     * prints the values to Logcat every second.
+     */
+    private fun startTelemetryTest() {
+
+        viewLifecycleOwner.lifecycleScope.launch {
+
+            viewLifecycleOwner.repeatOnLifecycle(
+                Lifecycle.State.STARTED
+            ) {
+
+                vehicleTelemetrySimulator
+                    .observeTelemetry()
+                    .collect { telemetry ->
+
+                        Log.d(
+                            "OKDRIVER_TELEMETRY",
+                            """
+                            Speed: ${telemetry.speedKmh} km/h
+                            RPM: ${telemetry.rpm}
+                            Load: ${telemetry.engineLoad}%
+                            Throttle: ${telemetry.throttlePosition}%
+                            Temp: ${telemetry.engineTemperatureCelsius}°C
+                            Voltage: ${telemetry.batteryVoltage}V
+                            Fault: ${telemetry.diagnosticFault}
+                            """.trimIndent()
+                        )
+                    }
+            }
+        }
+    }
+
+    /**
+     * NetworkCallback based monitoring.
+     *
+     * Currently kept here for reference/testing.
+     * The simulator test does not depend on it.
+     */
     private fun startNetworkUpdates() {
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -211,7 +244,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                                 "Offline"
                             }
 
-                        android.util.Log.d(
+                        Log.d(
                             "OKDRIVER_NETWORK",
                             "Network online: ${network.isOnline}"
                         )
@@ -220,6 +253,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
     }
 
+    /**
+     * Initial network status check.
+     */
     private fun updateNetworkStatus() {
 
         val connectivityManager =
@@ -231,7 +267,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             connectivityManager.activeNetwork
 
         val capabilities =
-            connectivityManager.getNetworkCapabilities(network)
+            connectivityManager.getNetworkCapabilities(
+                network
+            )
 
         val connected =
             capabilities?.hasCapability(
@@ -245,6 +283,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
     }
 
+    /**
+     * Checks whether location permission has been granted.
+     */
     private fun checkLocationPermission() {
 
         val fineLocationGranted =
@@ -260,8 +301,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             ) == PackageManager.PERMISSION_GRANTED
 
         if (fineLocationGranted || coarseLocationGranted) {
+
             startGpsUpdates()
+
         } else {
+
             locationPermissionLauncher.launch(
                 arrayOf(
                     Manifest.permission.ACCESS_FINE_LOCATION,
@@ -271,6 +315,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
     }
 
+    /**
+     * Collects GPS location updates.
+     */
     private fun startGpsUpdates() {
 
         viewLifecycleOwner.lifecycleScope.launch {
