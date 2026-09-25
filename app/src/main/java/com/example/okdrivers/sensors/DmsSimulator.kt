@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlin.random.Random
 import javax.inject.Inject
+import com.example.okdrivers.domain.model.DriverCondition
 
 class DmsSimulator @Inject constructor() {
 

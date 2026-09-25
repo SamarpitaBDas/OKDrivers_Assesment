@@ -16,7 +16,8 @@ data class DriverState(
     // Responsiveness
     val isResponsive: Boolean,
     // Overall classification
-    val condition: DriverCondition
+    val condition: DriverCondition,
+    val gazeDirection: String
 )
 
 enum class DriverCondition {

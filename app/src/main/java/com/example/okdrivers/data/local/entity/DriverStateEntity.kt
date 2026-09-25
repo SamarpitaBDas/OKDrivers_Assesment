@@ -17,7 +17,8 @@ data class DriverStateEntity(
     val headYaw: Float,
     val headRoll: Float,
     val isResponsive: Boolean,
-    val condition: String
+    val condition: String,
+    val gazeDirection: String = "FORWARD"
 )
 
 //DriverCondition.valueOf(entity.condition)

@@ -21,12 +21,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 
 import com.example.okdrivers.R
+import com.example.okdrivers.data.repository.SensorRepository
+import com.example.okdrivers.domain.engine.DriverStateEngine
 import com.example.okdrivers.sensors.GpsLocationManager
 import com.example.okdrivers.sensors.NetworkStatusManager
 import com.example.okdrivers.sensors.VehicleTelemetrySimulator
-import com.example.okdrivers.sensors.DmsSimulator
-
-//import com.example.okdrivers.data.repository.SensorRepository
 
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -35,6 +34,10 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HomeFragment : Fragment(R.layout.fragment_home) {
+
+    // ---------------------------------------------------------
+    // UI
+    // ---------------------------------------------------------
 
     private lateinit var ivProfile: ImageView
 
@@ -50,6 +53,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private lateinit var tvLongitude: TextView
     private lateinit var tvNetwork: TextView
 
+
+    // ---------------------------------------------------------
+    // Sensor / Domain dependencies
+    // ---------------------------------------------------------
+
     @Inject
     lateinit var gpsLocationManager: GpsLocationManager
 
@@ -60,10 +68,15 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     lateinit var vehicleTelemetrySimulator: VehicleTelemetrySimulator
 
     @Inject
-    lateinit var dmsSimulator: DmsSimulator
+    lateinit var sensorRepository: SensorRepository
 
-//    @Inject
-//    lateinit var sensorRepository: SensorRepository
+    @Inject
+    lateinit var driverStateEngine: DriverStateEngine
+
+
+    // ---------------------------------------------------------
+    // Location permission launcher
+    // ---------------------------------------------------------
 
     private val locationPermissionLauncher =
         registerForActivityResult(
@@ -71,24 +84,44 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         ) { permissions ->
 
             val fineLocation =
-                permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
+                permissions[
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ] == true
 
             val coarseLocation =
-                permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+                permissions[
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ] == true
 
             if (fineLocation || coarseLocation) {
+
                 startGpsUpdates()
+
             } else {
+
                 tvLatitude.text = "Permission denied"
                 tvLongitude.text = "Enable location"
             }
         }
 
+
+    // ---------------------------------------------------------
+    // Fragment lifecycle
+    // ---------------------------------------------------------
+
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?
     ) {
-        super.onViewCreated(view, savedInstanceState)
+        super.onViewCreated(
+            view,
+            savedInstanceState
+        )
+
+
+        // -----------------------------------------------------
+        // Find views
+        // -----------------------------------------------------
 
         ivProfile =
             view.findViewById(R.id.ivProfile)
@@ -123,21 +156,58 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         tvNetwork =
             view.findViewById(R.id.tvNetwork)
 
-        tvDriverState.text = "Alertness: Good"
-        tvVehicleHealth.text = "No issues"
+
+        // -----------------------------------------------------
+        // Initial UI values
+        // -----------------------------------------------------
+
+        tvDriverState.text =
+            "Alertness: Good"
+
+        tvVehicleHealth.text =
+            "No issues"
+
+
+        // -----------------------------------------------------
+        // Click listeners
+        // -----------------------------------------------------
 
         setupClickListeners()
 
+
+        // -----------------------------------------------------
+        // Initial network status
+        // -----------------------------------------------------
+
         updateNetworkStatus()
+
+
+        // -----------------------------------------------------
+        // GPS
+        // -----------------------------------------------------
 
         checkLocationPermission()
 
-        // Temporary telemetry verification
+
+        // -----------------------------------------------------
+        // TEMPORARY TESTS
+        // -----------------------------------------------------
+        //
+        // Keep these while we are developing/testing the
+        // sensor architecture.
+        //
+        // Later these will move into the monitoring service.
+        // -----------------------------------------------------
+
         startTelemetryTest()
-        // startNetworkUpdates()
-//        startDmsTest()
-//        startSensorRepositoryTest()
+
+        startDriverStateTest()
     }
+
+
+    // =========================================================
+    // CLICK LISTENERS
+    // =========================================================
 
     private fun setupClickListeners() {
 
@@ -150,6 +220,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             ).show()
         }
 
+
         cardSystemStatus.setOnClickListener {
 
             Toast.makeText(
@@ -158,6 +229,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 Toast.LENGTH_SHORT
             ).show()
         }
+
 
         cardDriverState.setOnClickListener {
 
@@ -168,6 +240,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             ).show()
         }
 
+
         cardVehicleHealth.setOnClickListener {
 
             Toast.makeText(
@@ -177,10 +250,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             ).show()
         }
 
+
         cardLocation.setOnClickListener {
 
             checkLocationPermission()
         }
+
 
         cardNetwork.setOnClickListener {
 
@@ -192,12 +267,19 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
     }
 
-    /**
-     * Temporary telemetry test.
-     *
-     * This collects simulated vehicle telemetry and
-     * prints the values to Logcat every second.
-     */
+
+    // =========================================================
+    // VEHICLE TELEMETRY TEST
+    // =========================================================
+    //
+    // Temporary development test.
+    //
+    // Reads VehicleTelemetrySimulator directly and prints
+    // values to Logcat.
+    //
+    // This will eventually be consumed by the monitoring layer.
+    // =========================================================
+
     private fun startTelemetryTest() {
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -227,13 +309,25 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
     }
 
-    /**
-     * NetworkCallback based monitoring.
-     *
-     * Currently kept here for reference/testing.
-     * The simulator test does not depend on it.
-     */
-    private fun startNetworkUpdates() {
+
+    // =========================================================
+    // DRIVER STATE TEST
+    // =========================================================
+    //
+    // DMS flow:
+    //
+    // DmsSimulator
+    //      ↓
+    // SensorRepository
+    //      ↓
+    // DriverStateEngine
+    //      ↓
+    // DriverState
+    //
+    // The HomeFragment only observes the result.
+    // =========================================================
+
+    private fun startDriverStateTest() {
 
         viewLifecycleOwner.lifecycleScope.launch {
 
@@ -241,29 +335,43 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 Lifecycle.State.STARTED
             ) {
 
-                networkStatusManager
-                    .observeNetwork()
-                    .collect { network ->
+                sensorRepository
+                    .observeDms()
+                    .collect { dmsSample ->
 
-                        tvNetwork.text =
-                            if (network.isOnline) {
-                                "Online"
-                            } else {
-                                "Offline"
-                            }
+                        val driverState =
+                            driverStateEngine.process(
+                                dmsSample
+                            )
+
 
                         Log.d(
-                            "OKDRIVER_NETWORK",
-                            "Network online: ${network.isOnline}"
+                            "OKDRIVER_DRIVER_STATE",
+                            """
+                            Timestamp: ${driverState.timestamp}
+                            PERCLOS: ${driverState.perclos}
+                            Gaze: ${driverState.gazeDirection}
+                            Head Pitch: ${driverState.headPitch}°
+                            Head Yaw: ${driverState.headYaw}°
+                            Head Roll: ${driverState.headRoll}°
+                            Blink Rate: ${driverState.blinkRate}
+                            Yawn: ${driverState.yawnDetected}
+                            Gaze Away: ${driverState.gazeAwayDurationMs} ms
+                            Attention: ${driverState.attentionScore}
+                            Responsive: ${driverState.isResponsive}
+                            Condition: ${driverState.condition}
+                            """.trimIndent()
                         )
                     }
             }
         }
     }
 
-    /**
-     * Initial network status check.
-     */
+
+    // =========================================================
+    // INITIAL NETWORK STATUS
+    // =========================================================
+
     private fun updateNetworkStatus() {
 
         val connectivityManager =
@@ -271,29 +379,38 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 Context.CONNECTIVITY_SERVICE
             ) as ConnectivityManager
 
+
         val network =
             connectivityManager.activeNetwork
+
 
         val capabilities =
             connectivityManager.getNetworkCapabilities(
                 network
             )
 
+
         val connected =
             capabilities?.hasCapability(
                 NetworkCapabilities.NET_CAPABILITY_INTERNET
             ) == true
 
+
         if (connected) {
+
             tvNetwork.text = "Online"
+
         } else {
+
             tvNetwork.text = "Offline"
         }
     }
 
-    /**
-     * Checks whether location permission has been granted.
-     */
+
+    // =========================================================
+    // GPS PERMISSION
+    // =========================================================
+
     private fun checkLocationPermission() {
 
         val fineLocationGranted =
@@ -302,13 +419,18 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
 
+
         val coarseLocationGranted =
             ContextCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
 
-        if (fineLocationGranted || coarseLocationGranted) {
+
+        if (
+            fineLocationGranted ||
+            coarseLocationGranted
+        ) {
 
             startGpsUpdates()
 
@@ -322,74 +444,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             )
         }
     }
-//    private fun startDmsTest() {
-//
-//        dmsSimulator.injectAnomaly(
-//            DmsSimulator.AnomalyType.UNRESPONSIVE
-//        )
-//
-//        viewLifecycleOwner.lifecycleScope.launch {
-//
-//            viewLifecycleOwner.repeatOnLifecycle(
-//                Lifecycle.State.STARTED
-//            ) {
-//
-//                dmsSimulator
-//                    .observeDms()
-//                    .collect { dms ->
-//
-//                        Log.d(
-//                            "OKDRIVER_DMS",
-//                            """
-//                        PERCLOS: ${dms.perclos}
-//                        Gaze: ${dms.gazeDirection}
-//                        Head Pitch: ${dms.headPitch}°
-//                        Head Yaw: ${dms.headYaw}°
-//                        Head Roll: ${dms.headRoll}°
-//                        Blink Rate: ${dms.blinkRate}/min
-//                        Yawn: ${dms.yawnDetected}
-//                        Gaze Away: ${dms.gazeAwayDurationMs} ms
-//                        Attention: ${dms.attentionScore}
-//                        Responsive: ${dms.isResponsive}
-//                        Condition: ${dms.condition}
-//                        """.trimIndent()
-//                        )
-//                    }
-//            }
-//        }
-//    }
 
-//    private fun startSensorRepositoryTest() {
-//
-//        viewLifecycleOwner.lifecycleScope.launch {
-//
-//            viewLifecycleOwner.repeatOnLifecycle(
-//                Lifecycle.State.STARTED
-//            ) {
-//
-//                sensorRepository
-//                    .observeSensorSnapshot()
-//                    .collect { snapshot ->
-//
-//                        Log.d(
-//                            "OKDRIVER_SENSOR_REPOSITORY",
-//                            """
-//                        Motion: ${snapshot.motion != null}
-//                        GPS: ${snapshot.gps != null}
-//                        Battery: ${snapshot.battery != null}
-//                        Network: ${snapshot.network != null}
-//                        Vehicle: ${snapshot.vehicleTelemetry != null}
-//                        DMS: ${snapshot.dms != null}
-//                        """.trimIndent()
-//                        )
-//                    }
-//            }
-//        }
-//    }
 
-    /**
-     * Collects GPS location updates.
-     */
+    // =========================================================
+    // GPS UPDATES
+    // =========================================================
+
     private fun startGpsUpdates() {
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -407,6 +467,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                                 "Lat %.4f°",
                                 location.latitude
                             )
+
 
                         tvLongitude.text =
                             String.format(

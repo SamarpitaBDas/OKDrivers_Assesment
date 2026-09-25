@@ -158,7 +158,8 @@ fun DriverStateEntity.toDomain() = DriverState(
     isResponsive = isResponsive,
     condition = runCatching {
         DriverCondition.valueOf(condition)
-    }.getOrDefault(DriverCondition.UNKNOWN)
+    }.getOrDefault(DriverCondition.UNKNOWN),
+    gazeDirection = gazeDirection
 )
 
 fun DriverState.toEntity() = DriverStateEntity(
@@ -172,7 +173,8 @@ fun DriverState.toEntity() = DriverStateEntity(
     headYaw = headYaw,
     headRoll = headRoll,
     isResponsive = isResponsive,
-    condition = condition.name
+    condition = condition.name,
+    gazeDirection = gazeDirection
 )
 
 // SafetyBaseline
