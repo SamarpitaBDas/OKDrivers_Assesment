@@ -3,7 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/homeFragment">
+    app:startDestination="@id/sensorTestFragment">
+    <fragment
+        android:id="@+id/sensorTestFragment"
+        android:name="com.example.okdrivers.ui.sensor_test.SensorTestFragment"
+        android:label="Sensor Test"
+        tools:layout="@layout/fragment_sensor_test" />
 
     <fragment
         android:id="@+id/homeFragment"
