@@ -3,7 +3,6 @@ package com.example.okdrivers.ui.home
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Bundle
@@ -16,63 +15,112 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 
 import com.example.okdrivers.R
+import com.example.okdrivers.sensors.GpsLocationManager
 
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+import kotlinx.coroutines.launch
+//import com.example.okdrivers.sensors.BatteryStatusManager
+
+@AndroidEntryPoint
 class HomeFragment : Fragment(R.layout.fragment_home) {
+
+
     private lateinit var ivProfile: ImageView
+
     private lateinit var cardSystemStatus: LinearLayout
     private lateinit var cardDriverState: LinearLayout
     private lateinit var cardVehicleHealth: LinearLayout
     private lateinit var cardLocation: LinearLayout
     private lateinit var cardNetwork: LinearLayout
+
     private lateinit var tvDriverState: TextView
     private lateinit var tvVehicleHealth: TextView
     private lateinit var tvLatitude: TextView
     private lateinit var tvLongitude: TextView
     private lateinit var tvNetwork: TextView
+
+    @Inject
+    lateinit var gpsLocationManager: GpsLocationManager
+    @Inject
+//    lateinit var batteryStatusManager: BatteryStatusManager
+
     private val locationPermissionLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
         ) { permissions ->
+
             val fineLocation =
                 permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
+
             val coarseLocation =
                 permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+
             if (fineLocation || coarseLocation) {
-                updateLocation()
+                startGpsUpdates()
             } else {
                 tvLatitude.text = "Permission denied"
                 tvLongitude.text = "Enable location"
             }
         }
+
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?
     ) {
         super.onViewCreated(view, savedInstanceState)
+
         ivProfile = view.findViewById(R.id.ivProfile)
-        cardSystemStatus = view.findViewById(R.id.cardSystemStatus)
-        cardDriverState =view.findViewById(R.id.cardDriverState)
-        cardVehicleHealth =view.findViewById(R.id.cardVehicleHealth)
-        cardLocation = view.findViewById(R.id.cardLocation)
-        cardNetwork = view.findViewById(R.id.cardNetwork)
 
+        cardSystemStatus =
+            view.findViewById(R.id.cardSystemStatus)
 
-        tvDriverState = view.findViewById(R.id.tvDriverState)
-        tvVehicleHealth = view.findViewById(R.id.tvVehicleHealth)
-        tvLatitude = view.findViewById(R.id.tvLatitude)
-        tvLongitude = view.findViewById(R.id.tvLongitude)
-        tvNetwork = view.findViewById(R.id.tvNetwork)
+        cardDriverState =
+            view.findViewById(R.id.cardDriverState)
+
+        cardVehicleHealth =
+            view.findViewById(R.id.cardVehicleHealth)
+
+        cardLocation =
+            view.findViewById(R.id.cardLocation)
+
+        cardNetwork =
+            view.findViewById(R.id.cardNetwork)
+
+        tvDriverState =
+            view.findViewById(R.id.tvDriverState)
+
+        tvVehicleHealth =
+            view.findViewById(R.id.tvVehicleHealth)
+
+        tvLatitude =
+            view.findViewById(R.id.tvLatitude)
+
+        tvLongitude =
+            view.findViewById(R.id.tvLongitude)
+
+        tvNetwork =
+            view.findViewById(R.id.tvNetwork)
+
         tvDriverState.text = "Alertness: Good"
         tvVehicleHealth.text = "No issues"
-        setupClickListeners()
-        updateNetworkStatus()
-        checkLocationPermission()
 
+        setupClickListeners()
+
+        updateNetworkStatus()
+
+        checkLocationPermission()
+//        startBatteryUpdates()
     }
+
     private fun setupClickListeners() {
+
         ivProfile.setOnClickListener {
             Toast.makeText(
                 requireContext(),
@@ -80,6 +128,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 Toast.LENGTH_SHORT
             ).show()
         }
+
         cardSystemStatus.setOnClickListener {
             Toast.makeText(
                 requireContext(),
@@ -87,6 +136,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 Toast.LENGTH_SHORT
             ).show()
         }
+
         cardDriverState.setOnClickListener {
             Toast.makeText(
                 requireContext(),
@@ -94,6 +144,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 Toast.LENGTH_SHORT
             ).show()
         }
+
         cardVehicleHealth.setOnClickListener {
             Toast.makeText(
                 requireContext(),
@@ -101,45 +152,79 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 Toast.LENGTH_SHORT
             ).show()
         }
+
         cardLocation.setOnClickListener {
             checkLocationPermission()
         }
+
         cardNetwork.setOnClickListener {
             updateNetworkStatus()
         }
     }
+//    private fun startBatteryUpdates() {
+//
+//        viewLifecycleOwner.lifecycleScope.launch {
+//
+//            viewLifecycleOwner.repeatOnLifecycle(
+//                Lifecycle.State.STARTED
+//            ) {
+//
+//                batteryStatusManager
+//                    .observeBattery()
+//                    .collect { battery ->
+//
+//                        // Temporary verification
+//                        android.util.Log.d(
+//                            "OKDRIVER_BATTERY",
+//                            "Battery: ${battery.batteryPercentage}% " +
+//                                    "Charging: ${battery.isCharging}"
+//                        )
+//                    }
+//            }
+//        }
+//    }
+
     private fun updateNetworkStatus() {
+
         val connectivityManager =
             requireContext().getSystemService(
                 Context.CONNECTIVITY_SERVICE
             ) as ConnectivityManager
+
         val network =
             connectivityManager.activeNetwork
+
         val capabilities =
             connectivityManager.getNetworkCapabilities(network)
+
         val connected =
             capabilities?.hasCapability(
                 NetworkCapabilities.NET_CAPABILITY_INTERNET
             ) == true
+
         if (connected) {
             tvNetwork.text = "Online"
         } else {
             tvNetwork.text = "Offline"
         }
     }
+
     private fun checkLocationPermission() {
+
         val fineLocationGranted =
             ContextCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
+
         val coarseLocationGranted =
             ContextCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
+
         if (fineLocationGranted || coarseLocationGranted) {
-            updateLocation()
+            startGpsUpdates()
         } else {
             locationPermissionLauncher.launch(
                 arrayOf(
@@ -149,38 +234,32 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             )
         }
     }
-    private fun updateLocation() {
-        val locationManager =
-            requireContext().getSystemService(
-                Context.LOCATION_SERVICE
-            ) as LocationManager
-        val provider: String? = when {
-            locationManager.isProviderEnabled(
-                LocationManager.GPS_PROVIDER
-            ) -> LocationManager.GPS_PROVIDER
-            locationManager.isProviderEnabled(
-                LocationManager.NETWORK_PROVIDER
-            ) -> LocationManager.NETWORK_PROVIDER
-            else -> null
-        }
-        if (provider == null) {
-            tvLatitude.text = "GPS unavailable"
-            tvLongitude.text = "Turn on location"
-            return
-        }
-        try {
-            val location =
-                locationManager.getLastKnownLocation(provider)
-            if (location != null) {
-                tvLatitude.text = String.format("Lat %.4f°", location.latitude)
-                tvLongitude.text = String.format("Long %.4f°", location.longitude)
-            } else {
-                tvLatitude.text = "Finding location..."
-                tvLongitude.text = "Please wait"
+
+    private fun startGpsUpdates() {
+
+        viewLifecycleOwner.lifecycleScope.launch {
+
+            viewLifecycleOwner.repeatOnLifecycle(
+                Lifecycle.State.STARTED
+            ) {
+
+                gpsLocationManager
+                    .observeLocation()
+                    .collect { location ->
+
+                        tvLatitude.text =
+                            String.format(
+                                "Lat %.4f°",
+                                location.latitude
+                            )
+
+                        tvLongitude.text =
+                            String.format(
+                                "Long %.4f°",
+                                location.longitude
+                            )
+                    }
             }
-        } catch (e: SecurityException) {
-            tvLatitude.text = "Location unavailable"
-            tvLongitude.text = "Permission required"
         }
     }
 }

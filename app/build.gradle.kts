@@ -59,5 +59,6 @@ dependencies {
     ksp("com.google.dagger:hilt-compiler:2.60.1")
     implementation("androidx.work:work-runtime-ktx:2.12.0")
     implementation("com.google.code.gson:gson:2.14.0")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 
 }
