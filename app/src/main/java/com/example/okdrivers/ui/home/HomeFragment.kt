@@ -24,6 +24,7 @@ import com.example.okdrivers.R
 import com.example.okdrivers.sensors.GpsLocationManager
 import com.example.okdrivers.sensors.NetworkStatusManager
 import com.example.okdrivers.sensors.VehicleTelemetrySimulator
+import com.example.okdrivers.sensors.DmsSimulator
 
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -55,6 +56,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     @Inject
     lateinit var vehicleTelemetrySimulator: VehicleTelemetrySimulator
+
+    @Inject
+    lateinit var dmsSimulator: DmsSimulator
 
     private val locationPermissionLauncher =
         registerForActivityResult(
@@ -125,10 +129,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         // Temporary telemetry verification
         startTelemetryTest()
-
-        // NetworkCallback verification was already completed.
-        // Keep this commented for now.
         // startNetworkUpdates()
+//        startDmsTest()
     }
 
     private fun setupClickListeners() {
@@ -312,6 +314,42 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 )
             )
+        }
+    }
+    private fun startDmsTest() {
+
+        dmsSimulator.injectAnomaly(
+            DmsSimulator.AnomalyType.UNRESPONSIVE
+        )
+
+        viewLifecycleOwner.lifecycleScope.launch {
+
+            viewLifecycleOwner.repeatOnLifecycle(
+                Lifecycle.State.STARTED
+            ) {
+
+                dmsSimulator
+                    .observeDms()
+                    .collect { dms ->
+
+                        Log.d(
+                            "OKDRIVER_DMS",
+                            """
+                        PERCLOS: ${dms.perclos}
+                        Gaze: ${dms.gazeDirection}
+                        Head Pitch: ${dms.headPitch}°
+                        Head Yaw: ${dms.headYaw}°
+                        Head Roll: ${dms.headRoll}°
+                        Blink Rate: ${dms.blinkRate}/min
+                        Yawn: ${dms.yawnDetected}
+                        Gaze Away: ${dms.gazeAwayDurationMs} ms
+                        Attention: ${dms.attentionScore}
+                        Responsive: ${dms.isResponsive}
+                        Condition: ${dms.condition}
+                        """.trimIndent()
+                        )
+                    }
+            }
         }
     }
 
