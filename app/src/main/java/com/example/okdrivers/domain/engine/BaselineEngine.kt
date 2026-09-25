@@ -1,12 +1,12 @@
 package com.example.okdrivers.domain.engine
 
-import com.example.okdrivers.sensors.MotionSensorSample
+import com.example.okdrivers.domain.model.SensorSample
 import com.example.okdrivers.sensors.VehicleTelemetrySample
 
 interface BaselineEngine {
 
     fun calculateDriverBaseline(
-        samples: List<MotionSensorSample>,
+        samples: List<SensorSample>,
         now: Long = System.currentTimeMillis()
     ): BaselineStatistics
 
