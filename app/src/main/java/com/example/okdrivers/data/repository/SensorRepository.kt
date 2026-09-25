@@ -1,11 +1,21 @@
 package com.example.okdrivers.data.repository
 
-import com.example.okdrivers.domain.model.SensorSample
+import com.example.okdrivers.sensors.BatteryStatusSample
+import com.example.okdrivers.sensors.DmsSample
+import com.example.okdrivers.sensors.GpsLocationSample
+import com.example.okdrivers.sensors.MotionSensorSample
+import com.example.okdrivers.sensors.NetworkStatusSample
+import com.example.okdrivers.sensors.SensorSnapshot
+import com.example.okdrivers.sensors.VehicleTelemetrySample
+
 import kotlinx.coroutines.flow.Flow
 
 interface SensorRepository {
-    fun observeSamples(): Flow<List<SensorSample>>
-    suspend fun getRecentSamples(limit: Int): List<SensorSample>
-    suspend fun saveSample(sample: SensorSample)
-    suspend fun clearSamples()
+    fun observeMotion(): Flow<MotionSensorSample>
+    fun observeGps(): Flow<GpsLocationSample>
+    fun observeBattery(): Flow<BatteryStatusSample>
+    fun observeNetwork(): Flow<NetworkStatusSample>
+    fun observeVehicleTelemetry(): Flow<VehicleTelemetrySample>
+    fun observeDms(): Flow<DmsSample>
+    fun observeSensorSnapshot(): Flow<SensorSnapshot>
 }

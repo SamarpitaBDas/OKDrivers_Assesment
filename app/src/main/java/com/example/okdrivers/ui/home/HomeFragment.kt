@@ -26,6 +26,8 @@ import com.example.okdrivers.sensors.NetworkStatusManager
 import com.example.okdrivers.sensors.VehicleTelemetrySimulator
 import com.example.okdrivers.sensors.DmsSimulator
 
+//import com.example.okdrivers.data.repository.SensorRepository
+
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -59,6 +61,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     @Inject
     lateinit var dmsSimulator: DmsSimulator
+
+//    @Inject
+//    lateinit var sensorRepository: SensorRepository
 
     private val locationPermissionLauncher =
         registerForActivityResult(
@@ -131,6 +136,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         startTelemetryTest()
         // startNetworkUpdates()
 //        startDmsTest()
+//        startSensorRepositoryTest()
     }
 
     private fun setupClickListeners() {
@@ -316,42 +322,70 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             )
         }
     }
-    private fun startDmsTest() {
+//    private fun startDmsTest() {
+//
+//        dmsSimulator.injectAnomaly(
+//            DmsSimulator.AnomalyType.UNRESPONSIVE
+//        )
+//
+//        viewLifecycleOwner.lifecycleScope.launch {
+//
+//            viewLifecycleOwner.repeatOnLifecycle(
+//                Lifecycle.State.STARTED
+//            ) {
+//
+//                dmsSimulator
+//                    .observeDms()
+//                    .collect { dms ->
+//
+//                        Log.d(
+//                            "OKDRIVER_DMS",
+//                            """
+//                        PERCLOS: ${dms.perclos}
+//                        Gaze: ${dms.gazeDirection}
+//                        Head Pitch: ${dms.headPitch}°
+//                        Head Yaw: ${dms.headYaw}°
+//                        Head Roll: ${dms.headRoll}°
+//                        Blink Rate: ${dms.blinkRate}/min
+//                        Yawn: ${dms.yawnDetected}
+//                        Gaze Away: ${dms.gazeAwayDurationMs} ms
+//                        Attention: ${dms.attentionScore}
+//                        Responsive: ${dms.isResponsive}
+//                        Condition: ${dms.condition}
+//                        """.trimIndent()
+//                        )
+//                    }
+//            }
+//        }
+//    }
 
-        dmsSimulator.injectAnomaly(
-            DmsSimulator.AnomalyType.UNRESPONSIVE
-        )
-
-        viewLifecycleOwner.lifecycleScope.launch {
-
-            viewLifecycleOwner.repeatOnLifecycle(
-                Lifecycle.State.STARTED
-            ) {
-
-                dmsSimulator
-                    .observeDms()
-                    .collect { dms ->
-
-                        Log.d(
-                            "OKDRIVER_DMS",
-                            """
-                        PERCLOS: ${dms.perclos}
-                        Gaze: ${dms.gazeDirection}
-                        Head Pitch: ${dms.headPitch}°
-                        Head Yaw: ${dms.headYaw}°
-                        Head Roll: ${dms.headRoll}°
-                        Blink Rate: ${dms.blinkRate}/min
-                        Yawn: ${dms.yawnDetected}
-                        Gaze Away: ${dms.gazeAwayDurationMs} ms
-                        Attention: ${dms.attentionScore}
-                        Responsive: ${dms.isResponsive}
-                        Condition: ${dms.condition}
-                        """.trimIndent()
-                        )
-                    }
-            }
-        }
-    }
+//    private fun startSensorRepositoryTest() {
+//
+//        viewLifecycleOwner.lifecycleScope.launch {
+//
+//            viewLifecycleOwner.repeatOnLifecycle(
+//                Lifecycle.State.STARTED
+//            ) {
+//
+//                sensorRepository
+//                    .observeSensorSnapshot()
+//                    .collect { snapshot ->
+//
+//                        Log.d(
+//                            "OKDRIVER_SENSOR_REPOSITORY",
+//                            """
+//                        Motion: ${snapshot.motion != null}
+//                        GPS: ${snapshot.gps != null}
+//                        Battery: ${snapshot.battery != null}
+//                        Network: ${snapshot.network != null}
+//                        Vehicle: ${snapshot.vehicleTelemetry != null}
+//                        DMS: ${snapshot.dms != null}
+//                        """.trimIndent()
+//                        )
+//                    }
+//            }
+//        }
+//    }
 
     /**
      * Collects GPS location updates.
