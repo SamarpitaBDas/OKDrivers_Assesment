@@ -27,6 +27,7 @@ import javax.inject.Inject
 
 import kotlinx.coroutines.launch
 //import com.example.okdrivers.sensors.BatteryStatusManager
+import com.example.okdrivers.sensors.NetworkStatusManager
 
 @AndroidEntryPoint
 class HomeFragment : Fragment(R.layout.fragment_home) {
@@ -48,8 +49,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     @Inject
     lateinit var gpsLocationManager: GpsLocationManager
-    @Inject
+//    @Inject
 //    lateinit var batteryStatusManager: BatteryStatusManager
+    @Inject
+    lateinit var networkStatusManager: NetworkStatusManager
 
     private val locationPermissionLauncher =
         registerForActivityResult(
@@ -117,6 +120,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         checkLocationPermission()
 //        startBatteryUpdates()
+//        startNetworkUpdates()
     }
 
     private fun setupClickListeners() {
@@ -158,7 +162,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
 
         cardNetwork.setOnClickListener {
-            updateNetworkStatus()
+            Toast.makeText(
+                requireContext(),
+                "Network status is monitored automatically",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 //    private fun startBatteryUpdates() {
@@ -183,6 +191,34 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 //            }
 //        }
 //    }
+
+    private fun startNetworkUpdates() {
+
+        viewLifecycleOwner.lifecycleScope.launch {
+
+            viewLifecycleOwner.repeatOnLifecycle(
+                Lifecycle.State.STARTED
+            ) {
+
+                networkStatusManager
+                    .observeNetwork()
+                    .collect { network ->
+
+                        tvNetwork.text =
+                            if (network.isOnline) {
+                                "Online"
+                            } else {
+                                "Offline"
+                            }
+
+                        android.util.Log.d(
+                            "OKDRIVER_NETWORK",
+                            "Network online: ${network.isOnline}"
+                        )
+                    }
+            }
+        }
+    }
 
     private fun updateNetworkStatus() {
 
