@@ -58,6 +58,17 @@ class ResponderSimulationTest {
     }
 
     @Test
+    fun testFilterAndSortByDistance() {
+        val center = Pair(37.7749, -122.4194)
+        val responders = ResponderSimulator.generateAround(center.first, center.second, count = 6)
+        val filtered = ResponderDistanceCalculator.filterAndSortByDistance(responders, center.first, center.second, radiusKm = 10.0)
+        assertFalse(filtered.isEmpty())
+        for (i in 0 until filtered.size - 1) {
+            assertTrue(filtered[i].second <= filtered[i + 1].second)
+        }
+    }
+
+    @Test
     fun testCommunityMobilizationOrchestratorSeedingAndIdempotency() = runBlocking {
         val responderRepo = FakeResponderRepository()
         val incidentRepo = FakeIncidentRepository()
