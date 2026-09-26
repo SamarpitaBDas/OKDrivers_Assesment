@@ -1,12 +1,8 @@
 package com.example.okdrivers.ui.home
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -16,27 +12,25 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 
 import com.example.okdrivers.R
-import com.example.okdrivers.data.repository.SensorRepository
-import com.example.okdrivers.domain.engine.AdaptiveBaselineEngine
-import com.example.okdrivers.domain.engine.DriverStateEngine
-import com.example.okdrivers.domain.model.SensorSample
 import com.example.okdrivers.sensors.GpsLocationManager
-import com.example.okdrivers.sensors.NetworkStatusManager
-import com.example.okdrivers.sensors.VehicleTelemetrySample
-import com.example.okdrivers.sensors.VehicleTelemetrySimulator
+import com.example.okdrivers.service.SafetyMonitoringService
 
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HomeFragment : Fragment(R.layout.fragment_home) {
+
+    private val viewModel: HomeViewModel by viewModels()
 
     private lateinit var ivProfile: ImageView
 
@@ -54,21 +48,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     @Inject
     lateinit var gpsLocationManager: GpsLocationManager
-
-    @Inject
-    lateinit var networkStatusManager: NetworkStatusManager
-
-    @Inject
-    lateinit var vehicleTelemetrySimulator: VehicleTelemetrySimulator
-
-    @Inject
-    lateinit var sensorRepository: SensorRepository
-
-    @Inject
-    lateinit var driverStateEngine: DriverStateEngine
-
-    @Inject
-    lateinit var adaptiveBaselineEngine: AdaptiveBaselineEngine
 
     private val locationPermissionLauncher =
         registerForActivityResult(
@@ -135,16 +114,28 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         tvNetwork =
             view.findViewById(R.id.tvNetwork)
 
-        tvDriverState.text = "Alertness: Good"
-        tvVehicleHealth.text = "No issues"
-
         setupClickListeners()
-        updateNetworkStatus()
         checkLocationPermission()
 
-//        startTelemetryTest()
-//        startDriverStateTest()
-        startAdaptiveBaselineTest()
+        // Start Foreground Service monitoring
+        SafetyMonitoringService.startService(requireContext())
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(
+                Lifecycle.State.STARTED
+            ) {
+                viewModel.uiState.collectLatest { state ->
+                    if (state.isOnline) {
+                        tvNetwork.text = "Online"
+                    } else {
+                        tvNetwork.text = "Offline"
+                    }
+
+                    tvDriverState.text = "State: ${state.emergencyState.name} (Conf: ${String.format(java.util.Locale.US, "%.2f", state.anomalyConfidence)})"
+                    tvVehicleHealth.text = "Battery: ${state.batteryPercentage}%${if (state.isCharging) " (Charging)" else ""}"
+                }
+            }
+        }
     }
 
     private fun setupClickListeners() {
@@ -191,274 +182,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 "Network status is monitored automatically",
                 Toast.LENGTH_SHORT
             ).show()
-        }
-    }
-
-//    private fun startTelemetryTest() {
-//
-//        viewLifecycleOwner.lifecycleScope.launch {
-//
-//            viewLifecycleOwner.repeatOnLifecycle(
-//                Lifecycle.State.STARTED
-//            ) {
-//
-//                vehicleTelemetrySimulator
-//                    .observeTelemetry()
-//                    .collect { telemetry ->
-//
-//                        Log.d(
-//                            "OKDRIVER_TELEMETRY",
-//                            """
-//                            Speed: ${telemetry.speedKmh} km/h
-//                            RPM: ${telemetry.rpm}
-//                            Load: ${telemetry.engineLoad}%
-//                            Throttle: ${telemetry.throttlePosition}%
-//                            Temp: ${telemetry.engineTemperatureCelsius}°C
-//                            Voltage: ${telemetry.batteryVoltage}V
-//                            Fault: ${telemetry.diagnosticFault}
-//                            """.trimIndent()
-//                        )
-//                    }
-//            }
-//        }
-//    }
-
-//    private fun startDriverStateTest() {
-//
-//        viewLifecycleOwner.lifecycleScope.launch {
-//
-//            viewLifecycleOwner.repeatOnLifecycle(
-//                Lifecycle.State.STARTED
-//            ) {
-//
-//                sensorRepository
-//                    .observeDms()
-//                    .collect { dmsSample ->
-//
-//                        val driverState =
-//                            driverStateEngine.process(
-//                                dmsSample
-//                            )
-//
-//                        Log.d(
-//                            "OKDRIVER_DRIVER_STATE",
-//                            """
-//                            Timestamp: ${driverState.timestamp}
-//                            PERCLOS: ${driverState.perclos}
-//                            Gaze: ${driverState.gazeDirection}
-//                            Head Pitch: ${driverState.headPitch}°
-//                            Head Yaw: ${driverState.headYaw}°
-//                            Head Roll: ${driverState.headRoll}°
-//                            Blink Rate: ${driverState.blinkRate}
-//                            Yawn: ${driverState.yawnDetected}
-//                            Gaze Away: ${driverState.gazeAwayDurationMs} ms
-//                            Attention: ${driverState.attentionScore}
-//                            Responsive: ${driverState.isResponsive}
-//                            Condition: ${driverState.condition}
-//                            """.trimIndent()
-//                        )
-//                    }
-//            }
-//        }
-//    }
-
-    private fun startAdaptiveBaselineTest() {
-
-        val initialSample =
-            SensorSample(
-                timestamp = System.currentTimeMillis(),
-                accelerationX = 0f,
-                accelerationY = 0f,
-                accelerationZ = 9.81f,
-                gForce = 0.50f,
-                pitch = 0f,
-                roll = 0f,
-                yaw = 0f,
-                latitude = 0.0,
-                longitude = 0.0,
-                speedKmh = 40f,
-                heading = 0f,
-                batteryPercentage = 80,
-                isCharging = false,
-                isNetworkOnline = true
-            )
-
-        val firstResult =
-            adaptiveBaselineEngine.updateDriverBaseline(
-                currentSample = initialSample,
-                previousBaseline = null
-            )
-
-        Log.d(
-            "OKDRIVER_BASELINE",
-            """
-            INITIAL BASELINE
-            Updated: ${firstResult.updated}
-            Average Speed: ${firstResult.baseline.averageSpeedKmh}
-            Average G-Force: ${firstResult.baseline.averageGForce}
-            Sample Count: ${firstResult.baseline.sampleCount}
-            Updated At: ${firstResult.baseline.updatedAt}
-            """.trimIndent()
-        )
-
-        val normalSample =
-            initialSample.copy(
-                timestamp = System.currentTimeMillis(),
-                gForce = 0.70f,
-                speedKmh = 50f
-            )
-
-        val secondResult =
-            adaptiveBaselineEngine.updateDriverBaseline(
-                currentSample = normalSample,
-                previousBaseline = firstResult.baseline
-            )
-
-        Log.d(
-            "OKDRIVER_BASELINE",
-            """
-            EMA UPDATE
-            Updated: ${secondResult.updated}
-            Average Speed: ${secondResult.baseline.averageSpeedKmh}
-            Average G-Force: ${secondResult.baseline.averageGForce}
-            Sample Count: ${secondResult.baseline.sampleCount}
-            Updated At: ${secondResult.baseline.updatedAt}
-            """.trimIndent()
-        )
-
-        val anomalySample =
-            initialSample.copy(
-                timestamp = System.currentTimeMillis(),
-                gForce = 2.0f,
-                speedKmh = 0f
-            )
-
-        val anomalyResult =
-            adaptiveBaselineEngine.updateDriverBaseline(
-                currentSample = anomalySample,
-                previousBaseline = secondResult.baseline,
-                allowUpdate = false
-            )
-
-        Log.d(
-            "OKDRIVER_BASELINE",
-            """
-            ANOMALY TEST
-            Updated: ${anomalyResult.updated}
-            Average Speed: ${anomalyResult.baseline.averageSpeedKmh}
-            Average G-Force: ${anomalyResult.baseline.averageGForce}
-            Sample Count: ${anomalyResult.baseline.sampleCount}
-            Updated At: ${anomalyResult.baseline.updatedAt}
-            """.trimIndent()
-        )
-
-        startVehicleBaselineTest()
-    }
-
-    private fun startVehicleBaselineTest() {
-
-        val initialTelemetry =
-            VehicleTelemetrySample(
-                timestamp = System.currentTimeMillis(),
-                speedKmh = 40f,
-                rpm = 1800f,
-                engineLoad = 35f,
-                throttlePosition = 25f,
-                engineTemperatureCelsius = 88f,
-                batteryVoltage = 13.9f,
-                diagnosticFault = null
-            )
-
-        val firstResult =
-            adaptiveBaselineEngine.updateVehicleBaseline(
-                currentSample = initialTelemetry,
-                previousBaseline = null
-            )
-
-        Log.d(
-            "OKDRIVER_VEHICLE_BASELINE",
-            """
-            INITIAL BASELINE
-            Updated: ${firstResult.updated}
-            Average Speed: ${firstResult.baseline.averageSpeedKmh}
-            Average RPM: ${firstResult.baseline.averageRpm}
-            Average Load: ${firstResult.baseline.averageEngineLoad}
-            Sample Count: ${firstResult.baseline.sampleCount}
-            Updated At: ${firstResult.baseline.updatedAt}
-            """.trimIndent()
-        )
-
-        val normalTelemetry =
-            initialTelemetry.copy(
-                timestamp = System.currentTimeMillis(),
-                speedKmh = 50f,
-                rpm = 2000f,
-                engineLoad = 40f
-            )
-
-        val secondResult =
-            adaptiveBaselineEngine.updateVehicleBaseline(
-                currentSample = normalTelemetry,
-                previousBaseline = firstResult.baseline
-            )
-
-        Log.d(
-            "OKDRIVER_VEHICLE_BASELINE",
-            """
-            EMA UPDATE
-            Updated: ${secondResult.updated}
-            Average Speed: ${secondResult.baseline.averageSpeedKmh}
-            Average RPM: ${secondResult.baseline.averageRpm}
-            Average Load: ${secondResult.baseline.averageEngineLoad}
-            Sample Count: ${secondResult.baseline.sampleCount}
-            Updated At: ${secondResult.baseline.updatedAt}
-            """.trimIndent()
-        )
-
-        val anomalyTelemetry =
-            initialTelemetry.copy(
-                timestamp = System.currentTimeMillis(),
-                speedKmh = 0f,
-                rpm = 0f,
-                engineLoad = 0f,
-                diagnosticFault = "ENGINE_FAULT"
-            )
-
-        val anomalyResult =
-            adaptiveBaselineEngine.updateVehicleBaseline(
-                currentSample = anomalyTelemetry,
-                previousBaseline = secondResult.baseline,
-                allowUpdate = false
-            )
-
-        Log.d(
-            "OKDRIVER_VEHICLE_BASELINE",
-            """
-            ANOMALY TEST
-            Updated: ${anomalyResult.updated}
-            Average Speed: ${anomalyResult.baseline.averageSpeedKmh}
-            Average RPM: ${anomalyResult.baseline.averageRpm}
-            Average Load: ${anomalyResult.baseline.averageEngineLoad}
-            Sample Count: ${anomalyResult.baseline.sampleCount}
-            Updated At: ${anomalyResult.baseline.updatedAt}
-            """.trimIndent()
-        )
-    }
-
-    private fun updateNetworkStatus() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(
-                Lifecycle.State.STARTED
-            ) {
-                networkStatusManager.observeNetwork()
-                    .collect { status ->
-                        if (status.isOnline) {
-                            tvNetwork.text = "Online"
-                        } else {
-                            tvNetwork.text = "Offline"
-                        }
-                    }
-            }
         }
     }
 
