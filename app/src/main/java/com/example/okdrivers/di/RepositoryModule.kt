@@ -6,6 +6,8 @@ import com.example.okdrivers.data.repository.AnomalyRepository
 import com.example.okdrivers.data.repository.AnomalyRepositoryImpl
 import com.example.okdrivers.data.repository.BaselineRepository
 import com.example.okdrivers.data.repository.BaselineRepositoryImpl
+import com.example.okdrivers.data.repository.CurrentProfileRepository
+import com.example.okdrivers.data.repository.CurrentProfileRepositoryImpl
 import com.example.okdrivers.data.repository.DriverRepository
 import com.example.okdrivers.data.repository.DriverRepositoryImpl
 import com.example.okdrivers.data.repository.DriverStateRepository
@@ -113,4 +115,10 @@ abstract class RepositoryModule {
     abstract fun bindNotificationRepository(
         implementation: NotificationRepositoryImpl
     ): NotificationRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindCurrentProfileRepository(
+        implementation: CurrentProfileRepositoryImpl
+    ): CurrentProfileRepository
 }

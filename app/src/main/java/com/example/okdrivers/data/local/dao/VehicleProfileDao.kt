@@ -15,4 +15,6 @@ interface VehicleProfileDao {
     fun getAll(): Flow<List<VehicleProfileEntity>>
     @Query("SELECT * FROM vehicle_profiles WHERE id = :id")
     suspend fun getById(id: String): VehicleProfileEntity?
+    @Query("SELECT * FROM vehicle_profiles WHERE id = :id")
+    fun observeById(id: String): Flow<VehicleProfileEntity?>
 }

@@ -14,6 +14,9 @@ class VehicleRepositoryImpl @Inject constructor(
             list.map { it.toDomain() }
         }
     }
+    override fun observeVehicle(id: String): Flow<VehicleProfile?> {
+        return dao.observeById(id).map { it?.toDomain() }
+    }
     override suspend fun getVehicle(id: String): VehicleProfile? {
         return dao.getById(id)?.toDomain()
     }

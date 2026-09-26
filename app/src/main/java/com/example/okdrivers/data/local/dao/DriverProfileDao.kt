@@ -15,4 +15,6 @@ interface DriverProfileDao {
     fun getAll(): Flow<List<DriverProfileEntity>>
     @Query("SELECT * FROM driver_profiles WHERE id = :id")
     suspend fun getById(id: String): DriverProfileEntity?
+    @Query("SELECT * FROM driver_profiles WHERE id = :id")
+    fun observeById(id: String): Flow<DriverProfileEntity?>
 }

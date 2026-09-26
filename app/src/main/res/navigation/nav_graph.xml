@@ -35,4 +35,14 @@
         android:name="com.example.okdrivers.ui.aiverification.AiVerificationFragment"
         android:label="fragment_ai_verification"
         tools:layout="@layout/fragment_ai_verification" />
+    <fragment
+        android:id="@+id/driverProfileFragment"
+        android:name="com.example.okdrivers.ui.profile.DriverProfileFragment"
+        android:label="fragment_driver_profile"
+        tools:layout="@layout/fragment_driver_profile" />
+    <fragment
+        android:id="@+id/vehicleProfileFragment"
+        android:name="com.example.okdrivers.ui.profile.VehicleProfileFragment"
+        android:label="fragment_vehicle_profile"
+        tools:layout="@layout/fragment_vehicle_profile" />
 </navigation>

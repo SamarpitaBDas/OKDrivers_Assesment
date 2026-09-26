@@ -14,6 +14,9 @@ class DriverRepositoryImpl @Inject constructor(
             list.map { it.toDomain() }
         }
     }
+    override fun observeDriver(id: String): Flow<DriverProfile?> {
+        return dao.observeById(id).map { it?.toDomain() }
+    }
     override suspend fun getDriver(id: String): DriverProfile? {
         return dao.getById(id)?.toDomain()
     }
