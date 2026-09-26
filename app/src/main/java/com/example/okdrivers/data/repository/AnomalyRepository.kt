@@ -5,5 +5,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface AnomalyRepository {
     fun observeAnomalies(): Flow<List<AnomalyEvent>>
+    suspend fun getEvent(anomalyId: String): AnomalyEvent?
     suspend fun saveAnomaly(anomaly: AnomalyEvent)
 }

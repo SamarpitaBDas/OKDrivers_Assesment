@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import com.example.okdrivers.di.MainDispatcher
 import com.example.okdrivers.domain.model.ResponseClassification
 import com.example.okdrivers.domain.model.UrgencyLevel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -21,7 +22,7 @@ import kotlin.coroutines.resume
 class RealVoiceVerificationService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val ttsManager: EmergencyTtsManager,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.Main
+    @MainDispatcher private val dispatcher: CoroutineDispatcher = Dispatchers.Main
 ) : VoiceVerificationService {
 
     override fun getPromptText(urgency: UrgencyLevel): String {

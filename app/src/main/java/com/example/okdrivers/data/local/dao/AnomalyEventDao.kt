@@ -12,4 +12,6 @@ interface AnomalyEventDao {
     suspend fun insert(event: AnomalyEventEntity)
     @Query("SELECT * FROM anomaly_events ORDER BY timestamp DESC")
     fun observeAll(): Flow<List<AnomalyEventEntity>>
+    @Query("SELECT * FROM anomaly_events WHERE id = :id")
+    suspend fun getById(id: String): AnomalyEventEntity?
 }

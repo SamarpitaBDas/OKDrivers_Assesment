@@ -35,6 +35,7 @@ class ResponderSimulationTest {
     private class FakeIncidentRepository : com.example.okdrivers.data.repository.IncidentRepository {
         val incidents = mutableListOf<com.example.okdrivers.domain.model.Incident>()
         override fun observeIncidents(): Flow<List<com.example.okdrivers.domain.model.Incident>> = flowOf(incidents)
+        override fun observeActiveIncident(): Flow<com.example.okdrivers.domain.model.Incident?> = flowOf(null)
         override suspend fun getIncident(id: String): com.example.okdrivers.domain.model.Incident? = incidents.find { it.id == id }
         override suspend fun saveIncident(incident: com.example.okdrivers.domain.model.Incident) {
             incidents.add(incident)

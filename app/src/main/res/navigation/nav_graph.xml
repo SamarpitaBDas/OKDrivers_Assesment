@@ -25,4 +25,9 @@
         android:name="com.example.okdrivers.ui.settings.SettingsFragment"
         android:label="fragment_settings"
         tools:layout="@layout/fragment_settings" />
+    <fragment
+        android:id="@+id/emergencyIncidentFragment"
+        android:name="com.example.okdrivers.ui.incident.EmergencyIncidentFragment"
+        android:label="fragment_emergency_incident"
+        tools:layout="@layout/fragment_emergency_incident" />
 </navigation>

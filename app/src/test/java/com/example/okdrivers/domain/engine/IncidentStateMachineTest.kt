@@ -16,6 +16,7 @@ class IncidentStateMachineTest {
     private class FakeIncidentRepository : IncidentRepository {
         val incidents = mutableListOf<Incident>()
         override fun observeIncidents(): Flow<List<Incident>> = flowOf(incidents)
+        override fun observeActiveIncident(): Flow<Incident?> = flowOf(null)
         override suspend fun getIncident(id: String): Incident? = incidents.find { it.id == id }
         override suspend fun saveIncident(incident: Incident) {
             incidents.add(incident)

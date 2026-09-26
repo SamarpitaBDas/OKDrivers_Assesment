@@ -1,6 +1,7 @@
 package com.example.okdrivers.data.repository
 
 import com.example.okdrivers.data.local.dao.IncidentDao
+import com.example.okdrivers.domain.model.EmergencyState
 import com.example.okdrivers.domain.model.Incident
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -13,6 +14,12 @@ class IncidentRepositoryImpl @Inject constructor(
     override fun observeIncidents(): Flow<List<Incident>> {
         return dao.observeAll().map { list ->
             list.map { it.toDomain() }
+        }
+    }
+    override fun observeActiveIncident(): Flow<Incident?> {
+        return dao.observeAll().map { list ->
+            list.map { it.toDomain() }
+                .firstOrNull { it.currentState != EmergencyState.NORMAL_OPERATION && it.currentState != EmergencyState.RESOLVED }
         }
     }
     override suspend fun getIncident(

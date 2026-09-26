@@ -15,6 +15,7 @@ class LogsViewModelTest {
 
     private class FakeIncidentRepository(val incidents: List<Incident>) : IncidentRepository {
         override fun observeIncidents(): Flow<List<Incident>> = flowOf(incidents)
+        override fun observeActiveIncident(): Flow<Incident?> = flowOf(incidents.firstOrNull { it.currentState != EmergencyState.NORMAL_OPERATION && it.currentState != EmergencyState.RESOLVED })
         override suspend fun getIncident(id: String): Incident? = incidents.find { it.id == id }
         override suspend fun saveIncident(incident: Incident) {}
     }

@@ -18,6 +18,7 @@ class AnomalyManagerTest {
     private class FakeAnomalyRepository : AnomalyRepository {
         val savedEvents = mutableListOf<AnomalyEvent>()
         override fun observeAnomalies(): Flow<List<AnomalyEvent>> = flowOf(savedEvents)
+        override suspend fun getEvent(anomalyId: String): AnomalyEvent? = savedEvents.find { it.id == anomalyId }
         override suspend fun saveAnomaly(anomaly: AnomalyEvent) {
             savedEvents.add(anomaly)
         }
@@ -26,6 +27,7 @@ class AnomalyManagerTest {
     private class FakeIncidentRepository : IncidentRepository {
         val savedIncidents = mutableListOf<Incident>()
         override fun observeIncidents(): Flow<List<Incident>> = flowOf(savedIncidents)
+        override fun observeActiveIncident(): Flow<Incident?> = flowOf(null)
         override suspend fun getIncident(id: String): Incident? = savedIncidents.find { it.id == id }
         override suspend fun saveIncident(incident: Incident) {
             savedIncidents.add(incident)

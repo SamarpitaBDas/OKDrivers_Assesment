@@ -3,6 +3,7 @@ package com.example.okdrivers.domain.community
 import com.example.okdrivers.data.repository.ResponderActionRepository
 import com.example.okdrivers.data.repository.ResponderRepository
 import com.example.okdrivers.domain.engine.IncidentStateMachine
+import com.example.okdrivers.di.DefaultDispatcher
 import com.example.okdrivers.domain.model.EmergencyState
 import com.example.okdrivers.domain.model.ResponderAction
 import com.example.okdrivers.domain.model.ResponderActionType
@@ -28,7 +29,7 @@ class ResponderMobilizationManager @Inject constructor(
     private val responderRepository: ResponderRepository,
     private val responderActionRepository: ResponderActionRepository,
     private val incidentStateMachine: IncidentStateMachine,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.Default
+    @DefaultDispatcher private val dispatcher: CoroutineDispatcher = Dispatchers.Default
 ) {
 
     private val tiers = listOf(5.0, 10.0, 20.0)

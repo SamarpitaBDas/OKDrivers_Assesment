@@ -13,6 +13,7 @@ class IncidentPayloadTest {
     private class FakeIncidentRepository : IncidentRepository {
         var incident: Incident? = null
         override fun observeIncidents(): Flow<List<Incident>> = flowOf(listOfNotNull(incident))
+        override fun observeActiveIncident(): Flow<Incident?> = flowOf(incident)
         override suspend fun getIncident(id: String): Incident? = incident
         override suspend fun saveIncident(incident: Incident) {
             this.incident = incident
@@ -36,6 +37,7 @@ class IncidentPayloadTest {
     private class FakeAIConversationRepository : AIConversationRepository {
         val sessions = mutableListOf<AIConversationSession>()
         override suspend fun getForIncident(incidentId: String): List<AIConversationSession> = sessions.filter { it.incidentId == incidentId }
+        override fun observeSessions(incidentId: String): Flow<List<AIConversationSession>> = flowOf(sessions.filter { it.incidentId == incidentId })
         override suspend fun saveSession(session: AIConversationSession) {
             sessions.add(session)
         }

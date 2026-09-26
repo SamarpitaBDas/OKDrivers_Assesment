@@ -16,6 +16,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 
 import com.example.okdrivers.R
 import com.example.okdrivers.sensors.GpsLocationManager
@@ -149,11 +150,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
 
         cardSystemStatus.setOnClickListener {
-            Toast.makeText(
-                requireContext(),
-                "All systems are being monitored",
-                Toast.LENGTH_SHORT
-            ).show()
+            findNavController().navigate(R.id.emergencyIncidentFragment)
         }
 
         cardDriverState.setOnClickListener {

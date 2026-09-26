@@ -51,6 +51,7 @@ class EmergencyVerificationOrchestratorTest {
     private class FakeAIConversationRepository : AIConversationRepository {
         val sessions = mutableListOf<AIConversationSession>()
         override suspend fun getForIncident(incidentId: String): List<AIConversationSession> = sessions.filter { it.incidentId == incidentId }
+        override fun observeSessions(incidentId: String): Flow<List<AIConversationSession>> = flowOf(sessions.filter { it.incidentId == incidentId })
         override suspend fun saveSession(session: AIConversationSession) {
             sessions.add(session)
         }
@@ -59,6 +60,7 @@ class EmergencyVerificationOrchestratorTest {
     private class FakeIncidentRepository : IncidentRepository {
         val incidents = mutableListOf<Incident>()
         override fun observeIncidents(): Flow<List<Incident>> = flowOf(incidents)
+        override fun observeActiveIncident(): Flow<Incident?> = flowOf(null)
         override suspend fun getIncident(id: String): Incident? = incidents.find { it.id == id }
         override suspend fun saveIncident(incident: Incident) {
             incidents.add(incident)

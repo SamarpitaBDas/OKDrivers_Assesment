@@ -17,6 +17,10 @@ class AnomalyRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getEvent(anomalyId: String): AnomalyEvent? {
+        return dao.getById(anomalyId)?.toDomain()
+    }
+
     override suspend fun saveAnomaly(
         anomaly: AnomalyEvent
     ) {
