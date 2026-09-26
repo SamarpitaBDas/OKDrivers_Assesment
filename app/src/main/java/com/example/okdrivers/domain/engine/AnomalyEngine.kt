@@ -35,6 +35,8 @@ class AnomalyEngine @Inject constructor(
         var maxConfidence = 0f
         var abnormalSignalCount = 0
 
+        val isAlertDriver = driverState == null || driverState.condition == DriverCondition.ALERT || driverState.isResponsive
+
         // 1. Motion & G-Force Analysis
         if (motionSensor != null && driverBaseline != null) {
             val gForceDeviation = anomalyConfidenceEngine.calculateDriverGForceDeviation(
@@ -55,6 +57,9 @@ class AnomalyEngine @Inject constructor(
                     "Severe G-Force deviation detected: %.2fG".format(motionSensor.gForce)
                 }
 
+                // Rule: 0.8G braking + normal driver attention + normal vehicle params -> logged (requiresVerification = false, isEscalated = false)
+                val isStandardBrakingOnly = isHardBraking && motionSensor.gForce <= 0.85f && isAlertDriver
+
                 events.add(
                     AnomalyEvent(
                         id = UUID.randomUUID().toString(),
@@ -69,7 +74,7 @@ class AnomalyEngine @Inject constructor(
                         vehicleId = vehicleId,
                         sensorSampleTimestamp = motionSensor.timestamp,
                         telemetryTimestamp = vehicleTelemetry?.timestamp,
-                        requiresVerification = sev >= AnomalySeverity.HIGH,
+                        requiresVerification = if (isStandardBrakingOnly) false else (sev >= AnomalySeverity.HIGH),
                         isEscalated = false
                     )
                 )
@@ -293,7 +298,6 @@ class AnomalyEngine @Inject constructor(
             else -> AnomalySeverity.LOW
         }
 
-        val isAlertDriver = driverState == null || driverState.condition == DriverCondition.ALERT || driverState.isResponsive
         val isStandardBrakingOnly = events.size == 1 && events.any { it.type == AnomalyType.HARD_BRAKING } && motionSensor != null && motionSensor.gForce <= 0.85f
 
         val requiresVerification = when {

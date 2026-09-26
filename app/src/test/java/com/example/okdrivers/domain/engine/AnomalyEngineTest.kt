@@ -94,6 +94,7 @@ class AnomalyEngineTest {
         assertEquals(AnomalySeverity.LOW, result.severity)
         assertTrue(result.classifications.contains(AnomalyType.UNKNOWN))
         assertFalse(result.requiresVerification)
+        assertFalse(result.isEscalated)
     }
 
     @Test
@@ -134,6 +135,10 @@ class AnomalyEngineTest {
 
         assertTrue(result.classifications.contains(AnomalyType.HARD_BRAKING))
         assertFalse(result.requiresVerification) // Must be false per requirements for alert driver 0.8G braking
+        assertFalse(result.isEscalated)
+        assertTrue(result.events.isNotEmpty())
+        assertFalse(result.events.first { it.type == AnomalyType.HARD_BRAKING }.requiresVerification)
+        assertFalse(result.events.first { it.type == AnomalyType.HARD_BRAKING }.isEscalated)
     }
 
     @Test
@@ -165,6 +170,7 @@ class AnomalyEngineTest {
         assertTrue(result.classifications.contains(AnomalyType.DRIVER_UNRESPONSIVE))
         assertEquals(AnomalySeverity.CRITICAL, result.severity)
         assertTrue(result.requiresVerification)
+        assertTrue(result.isEscalated)
     }
 
     @Test
@@ -192,6 +198,7 @@ class AnomalyEngineTest {
         assertTrue(result.classifications.contains(AnomalyType.ENGINE_STOP))
         assertEquals(AnomalySeverity.CRITICAL, result.severity)
         assertTrue(result.requiresVerification)
+        assertTrue(result.isEscalated)
     }
 
     @Test
@@ -233,5 +240,6 @@ class AnomalyEngineTest {
         assertTrue(result.classifications.contains(AnomalyType.MULTIPLE_ABNORMAL_SIGNALS))
         assertTrue(result.classifications.contains(AnomalyType.HARD_BRAKING))
         assertTrue(result.severity == AnomalySeverity.HIGH || result.severity == AnomalySeverity.CRITICAL)
+        assertTrue(result.requiresVerification)
     }
 }
