@@ -179,36 +179,69 @@ fun DriverState.toEntity() = DriverStateEntity(
 
 // SafetyBaseline
 
-fun SafetyBaselineEntity.toDomain() = SafetyBaseline(
-    id = id,
-    driverId = driverId,
-    vehicleId = vehicleId,
-    averageSpeedKmh = averageSpeedKmh,
-    averageRpm = averageRpm,
-    averageEngineLoad = averageEngineLoad,
-    averageBrakingG = averageBrakingG,
-    maximumNormalGForce = maximumNormalGForce,
-    sampleCount = sampleCount,
-    confidence = confidence,
-    createdAt = createdAt,
-    updatedAt = updatedAt
-)
+//fun SafetyBaselineEntity.toDomain() = SafetyBaseline(
+//    id = id,
+//    driverId = driverId,
+//    vehicleId = vehicleId,
+//    averageSpeedKmh = averageSpeedKmh,
+//    averageRpm = averageRpm,
+//    averageEngineLoad = averageEngineLoad,
+//    averageBrakingG = averageBrakingG,
+//    maximumNormalGForce = maximumNormalGForce,
+//    sampleCount = sampleCount,
+//    confidence = confidence,
+//    createdAt = createdAt,
+//    updatedAt = updatedAt
+//)
+//
+//fun SafetyBaseline.toEntity() = SafetyBaselineEntity(
+//    id = id,
+//    driverId = driverId,
+//    vehicleId = vehicleId,
+//    averageSpeedKmh = averageSpeedKmh,
+//    averageRpm = averageRpm,
+//    averageEngineLoad = averageEngineLoad,
+//    averageBrakingG = averageBrakingG,
+//    maximumNormalGForce = maximumNormalGForce,
+//    sampleCount = sampleCount,
+//    confidence = confidence,
+//    createdAt = createdAt,
+//    updatedAt = updatedAt
+//)
 
-fun SafetyBaseline.toEntity() = SafetyBaselineEntity(
-    id = id,
-    driverId = driverId,
-    vehicleId = vehicleId,
-    averageSpeedKmh = averageSpeedKmh,
-    averageRpm = averageRpm,
-    averageEngineLoad = averageEngineLoad,
-    averageBrakingG = averageBrakingG,
-    maximumNormalGForce = maximumNormalGForce,
-    sampleCount = sampleCount,
-    confidence = confidence,
-    createdAt = createdAt,
-    updatedAt = updatedAt
-)
+fun SafetyBaselineEntity.toDomain(): SafetyBaseline {
+    return SafetyBaseline(
+        id = id,
+        driverId = driverId,
+        vehicleId = vehicleId,
+        averageSpeedKmh = averageSpeedKmh,
+        averageRpm = averageRpm,
+        averageEngineLoad = averageEngineLoad,
+        averageBrakingG = averageBrakingG,
+        maximumNormalGForce = maximumNormalGForce,
+        sampleCount = sampleCount,
+        confidence = confidence,
+        createdAt = createdAt,
+        updatedAt = updatedAt
+    )
+}
 
+fun SafetyBaseline.toEntity(): SafetyBaselineEntity {
+    return SafetyBaselineEntity(
+        id = id,
+        driverId = driverId,
+        vehicleId = vehicleId,
+        averageSpeedKmh = averageSpeedKmh,
+        averageRpm = averageRpm,
+        averageEngineLoad = averageEngineLoad,
+        averageBrakingG = averageBrakingG,
+        maximumNormalGForce = maximumNormalGForce,
+        sampleCount = sampleCount,
+        confidence = confidence,
+        createdAt = createdAt,
+        updatedAt = updatedAt
+    )
+}
 // AnomalyEvent
 
 fun AnomalyEventEntity.toDomain() = AnomalyEvent(
