@@ -11,24 +11,14 @@
         <FrameLayout android:layout_width="match_parent" android:layout_height="230dp"
             android:layout_marginTop="16dp" android:background="@color/ok_dark_card">
             <TextView android:layout_width="match_parent" android:layout_height="match_parent"
-                android:gravity="center" android:text="DMS CAMERA
-
-Driver Monitoring"
+                android:gravity="center" android:text="DMS CAMERA\n\nDriver Monitoring Active"
                 android:textColor="@android:color/white" android:textSize="18sp"/>
         </FrameLayout>
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        <TextView
+            android:id="@+id/tvDriverStateContent"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="PERCLOS        8%
-
-Gaze Direction        Forward
-
-Head Pose        Normal
-
-Blink / Yawn        No / No
-
-Attention State        Attentive
-
-Responsiveness        Responsive"
+            android:text="PERCLOS        8%\n\nGaze Direction        Forward\n\nHead Pose        Normal\n\nBlink / Yawn        No / No\n\nAttention State        Attentive\n\nResponsiveness        Responsive"
             android:textColor="@android:color/white" android:textSize="15sp"/>
     </LinearLayout>
 </ScrollView>
