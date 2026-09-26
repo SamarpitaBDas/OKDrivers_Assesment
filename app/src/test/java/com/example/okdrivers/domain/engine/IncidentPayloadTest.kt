@@ -57,6 +57,14 @@ class IncidentPayloadTest {
         }
     }
 
+    private class FakeNotificationRepository : NotificationRepository {
+        val notifications = mutableListOf<NotificationEvent>()
+        override fun observeNotifications(): Flow<List<NotificationEvent>> = flowOf(notifications)
+        override suspend fun saveNotification(notification: NotificationEvent) {
+            notifications.add(notification)
+        }
+    }
+
     @Test
     fun testIncidentPayloadAssemblyAndGracefulDegradation() = runBlocking {
         val incidentRepo = FakeIncidentRepository()
@@ -116,5 +124,31 @@ class IncidentPayloadTest {
         assertNotNull(payload.latestTelemetry)
         assertEquals(ResponseClassification.UNRESPONSIVE, payload.verificationOutcome)
         assertTrue(payload.summaryText.contains("CRITICAL"))
+    }
+
+    @Test
+    fun testEmergencyApiServiceSendsAndPersistsNotification() = runBlocking {
+        val notifRepo = FakeNotificationRepository()
+        val apiService = EmergencyApiService(notifRepo)
+
+        val payload = IncidentPayload(
+            incidentId = "incident_999",
+            timestamp = System.currentTimeMillis(),
+            severity = AnomalySeverity.CRITICAL,
+            location = Pair(37.7749, -122.4194),
+            vehicleId = "veh_1",
+            driverId = "drv_1",
+            latestTelemetry = null,
+            latestDmsSnapshot = null,
+            verificationOutcome = ResponseClassification.UNRESPONSIVE,
+            communityResponseStatus = CommunityResponseStatus(false, 0, null, false, null),
+            summaryText = "CRITICAL EMERGENCY TEST"
+        )
+
+        val result = apiService.sendPayload(payload)
+        assertTrue(result.isSuccess)
+        assertEquals(1, notifRepo.notifications.size)
+        assertEquals("CRITICAL EMERGENCY TEST", notifRepo.notifications.first().message)
+        assertEquals(NotificationRecipient.EMERGENCY_AUTHORITY, notifRepo.notifications.first().recipientType)
     }
 }
