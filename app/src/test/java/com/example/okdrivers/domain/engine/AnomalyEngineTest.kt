@@ -58,7 +58,8 @@ class AnomalyEngineTest {
             throttlePosition = 20f,
             engineTemperatureCelsius = 90f,
             batteryVoltage = 14.1f,
-            diagnosticFault = null
+            diagnosticFault = null,
+            airbagDeployed = false
         )
         val driverState = DriverState(
             timestamp = System.currentTimeMillis(),
@@ -183,7 +184,8 @@ class AnomalyEngineTest {
             throttlePosition = 0f,
             engineTemperatureCelsius = 85f,
             batteryVoltage = 12.0f,
-            diagnosticFault = null
+            diagnosticFault = null,
+            airbagDeployed = false
         )
 
         val result = anomalyEngine.evaluate(
@@ -202,6 +204,34 @@ class AnomalyEngineTest {
     }
 
     @Test
+    fun testAirbagDeploymentAnomaly() {
+        val telemetry = VehicleTelemetrySample(
+            timestamp = System.currentTimeMillis(),
+            speedKmh = 0f,
+            rpm = 0f,
+            engineLoad = 0f,
+            throttlePosition = 0f,
+            engineTemperatureCelsius = 90f,
+            batteryVoltage = 12.6f,
+            diagnosticFault = null,
+            airbagDeployed = true // Airbag deployed
+        )
+
+        val result = anomalyEngine.evaluate(
+            vehicleTelemetry = telemetry,
+            driverState = null,
+            motionSensor = null,
+            gpsLocation = null,
+            driverBaseline = null,
+            vehicleBaseline = null
+        )
+
+        assertTrue(result.classifications.contains(AnomalyType.CRITICAL_VEHICLE_ANOMALY))
+        assertEquals(AnomalySeverity.CRITICAL, result.severity)
+        assertTrue(result.requiresVerification)
+    }
+
+    @Test
     fun testMultipleAbnormalSignals() {
         val motion = MotionSensorSample(
             timestamp = System.currentTimeMillis(),
@@ -215,17 +245,17 @@ class AnomalyEngineTest {
         )
         val driverState = DriverState(
             timestamp = System.currentTimeMillis(),
-            attentionScore = 0.3f,
-            perclos = 0.6f,
+            attentionScore = 0.1f,
+            perclos = 0.8f,
             blinkRate = 25f,
             yawnDetected = true,
-            gazeAwayDurationMs = 2000L,
+            gazeAwayDurationMs = 5000L,
             headPitch = 0f,
             headYaw = 0f,
             headRoll = 0f,
-            isResponsive = true,
-            condition = DriverCondition.DROWSY,
-            gazeDirection = "AWAY"
+            isResponsive = false,
+            condition = DriverCondition.UNRESPONSIVE,
+            gazeDirection = "DOWN"
         )
 
         val result = anomalyEngine.evaluate(
@@ -239,6 +269,7 @@ class AnomalyEngineTest {
 
         assertTrue(result.classifications.contains(AnomalyType.MULTIPLE_ABNORMAL_SIGNALS))
         assertTrue(result.classifications.contains(AnomalyType.HARD_BRAKING))
+        assertTrue(result.classifications.contains(AnomalyType.DRIVER_UNRESPONSIVE))
         assertTrue(result.severity == AnomalySeverity.HIGH || result.severity == AnomalySeverity.CRITICAL)
         assertTrue(result.requiresVerification)
     }

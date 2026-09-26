@@ -8,5 +8,6 @@ data class VehicleTelemetrySample(
     val throttlePosition: Float,
     val engineTemperatureCelsius: Float,
     val batteryVoltage: Float,
-    val diagnosticFault: String?
+    val diagnosticFault: String?,
+    val airbagDeployed: Boolean = false
 )

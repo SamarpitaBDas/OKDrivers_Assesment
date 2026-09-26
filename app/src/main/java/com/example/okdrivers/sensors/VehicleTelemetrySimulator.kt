@@ -14,7 +14,8 @@ class VehicleTelemetrySimulator @Inject constructor() {
         ENGINE_STOP,
         HIGH_TEMPERATURE,
         LOW_VOLTAGE,
-        DIAGNOSTIC_FAULT
+        DIAGNOSTIC_FAULT,
+        AIRBAG_DEPLOYED
     }
 
     @Volatile
@@ -38,6 +39,7 @@ class VehicleTelemetrySimulator @Inject constructor() {
         var throttle = 25f
         var temperature = 88f
         var voltage = 13.9f
+        var airbag = false
 
         while (true) {
 
@@ -50,6 +52,7 @@ class VehicleTelemetrySimulator @Inject constructor() {
             throttle += Random.nextFloat() * 5f - 2.5f
             temperature += Random.nextFloat() * 1.5f - 0.75f
             voltage += Random.nextFloat() * 0.08f - 0.04f
+            airbag = false
 
             /*
              * Keep normal values realistic.
@@ -93,6 +96,12 @@ class VehicleTelemetrySimulator @Inject constructor() {
                     diagnosticFault = "ENGINE_FAULT"
                 }
 
+                AnomalyType.AIRBAG_DEPLOYED -> {
+                    airbag = true
+                    speed = 0f
+                    rpm = 0f
+                }
+
                 AnomalyType.NONE -> {
                     // Normal operation.
                 }
@@ -107,7 +116,8 @@ class VehicleTelemetrySimulator @Inject constructor() {
                     throttlePosition = throttle,
                     engineTemperatureCelsius = temperature,
                     batteryVoltage = voltage,
-                    diagnosticFault = diagnosticFault
+                    diagnosticFault = diagnosticFault,
+                    airbagDeployed = airbag
                 )
             )
 
