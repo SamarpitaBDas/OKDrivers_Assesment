@@ -10,7 +10,6 @@ data class ResponderEntity(
     val name: String,
     val latitude: Double,
     val longitude: Double,
-    val distanceKm: Double,
     val isActive: Boolean,
     val reputationScore: Float?,
     val status: String

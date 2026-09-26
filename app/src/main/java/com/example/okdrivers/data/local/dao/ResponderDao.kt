@@ -11,10 +11,11 @@ import kotlinx.coroutines.flow.Flow
 interface ResponderDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(responder: ResponderEntity)
+
     @Query("""
         SELECT * FROM responders
         WHERE isActive = 1
-        ORDER BY distanceKm ASC
+        ORDER BY reputationScore DESC
     """)
     fun observeActiveResponders(): Flow<List<ResponderEntity>>
 }
