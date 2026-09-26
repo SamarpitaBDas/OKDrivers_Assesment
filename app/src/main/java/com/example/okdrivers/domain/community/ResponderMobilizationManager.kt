@@ -8,6 +8,7 @@ import com.example.okdrivers.domain.model.ResponderAction
 import com.example.okdrivers.domain.model.ResponderActionType
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.flow.first
@@ -15,7 +16,6 @@ import kotlinx.coroutines.flow.map
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.time.Duration.Companion.milliseconds
 
 sealed class MobilizationOutcome {
     data class Accepted(val responderId: String, val tierRadiusKm: Double) : MobilizationOutcome()
@@ -99,6 +99,19 @@ class ResponderMobilizationManager @Inject constructor(
                     "Responder $acceptedResponderId accepted mobilization at ${radius}km radius",
                     now = System.currentTimeMillis()
                 )
+
+                // Simulate ENROUTE journey update for the winning responder (terminal simulated state)
+                delay(200L)
+                val enrouteAction = ResponderAction(
+                    id = UUID.randomUUID().toString(),
+                    incidentId = incidentId,
+                    responderId = acceptedResponderId,
+                    timestamp = System.currentTimeMillis(),
+                    action = ResponderActionType.ENROUTE,
+                    latitude = lat,
+                    longitude = lng
+                )
+                responderActionRepository.saveAction(enrouteAction)
 
                 return@withContext MobilizationOutcome.Accepted(acceptedResponderId, radius)
             }

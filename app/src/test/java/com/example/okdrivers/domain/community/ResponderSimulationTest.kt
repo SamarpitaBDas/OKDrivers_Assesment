@@ -4,7 +4,9 @@ import com.example.okdrivers.data.repository.ResponderRepository
 import com.example.okdrivers.domain.engine.IncidentStateMachine
 import com.example.okdrivers.domain.model.EmergencyState
 import com.example.okdrivers.domain.model.Responder
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
@@ -22,9 +24,11 @@ class ResponderSimulationTest {
 
     private class FakeResponderActionRepository : com.example.okdrivers.data.repository.ResponderActionRepository {
         val actions = mutableListOf<com.example.okdrivers.domain.model.ResponderAction>()
-        override fun observeActions(incidentId: String): Flow<List<com.example.okdrivers.domain.model.ResponderAction>> = flowOf(actions)
+        private val _actionsFlow = MutableStateFlow<List<com.example.okdrivers.domain.model.ResponderAction>>(emptyList())
+        override fun observeActions(incidentId: String): Flow<List<com.example.okdrivers.domain.model.ResponderAction>> = _actionsFlow
         override suspend fun saveAction(action: com.example.okdrivers.domain.model.ResponderAction) {
             actions.add(action)
+            _actionsFlow.value = actions.toList()
         }
     }
 
@@ -89,7 +93,7 @@ class ResponderSimulationTest {
             responderRepository = responderRepo,
             responderActionRepository = actionRepo,
             incidentStateMachine = stateMachine,
-            dispatcher = kotlinx.coroutines.Dispatchers.Unconfined
+            dispatcher = Dispatchers.Unconfined
         )
 
         val responders = ResponderSimulator.generateAround(37.7749, -122.4194, count = 6)
@@ -109,5 +113,60 @@ class ResponderSimulationTest {
 
         assertEquals(MobilizationOutcome.EscalatedToAuthority, outcome)
         assertEquals(EmergencyState.AUTHORITY_ESCALATION, stateMachine.currentState.value)
+    }
+
+    @Test
+    fun testResponderAcceptanceAndEnrouteJourney() = runBlocking {
+        val responderRepo = FakeResponderRepository()
+        val actionRepo = FakeResponderActionRepository()
+        val incidentRepo = FakeIncidentRepository()
+        val timelineRepo = FakeTimelineRepository()
+        val stateMachine = IncidentStateMachine(incidentRepo, timelineRepo)
+        val searchService = ResponderSearchService()
+
+        val mobilizationManager = ResponderMobilizationManager(
+            responderSearchService = searchService,
+            responderRepository = responderRepo,
+            responderActionRepository = actionRepo,
+            incidentStateMachine = stateMachine,
+            dispatcher = Dispatchers.Unconfined
+        )
+
+        val responders = ResponderSimulator.generateAround(37.7749, -122.4194, count = 6)
+        val eligibleTier1 = searchService.findEligible(responders, 37.7749, -122.4194, 5.0)
+        val firstResponderId = eligibleTier1.first().id
+
+        stateMachine.transitionTo(EmergencyState.ANOMALY_DETECTION, "Trigger")
+        stateMachine.transitionTo(EmergencyState.AI_VERIFICATION, "Verifying")
+        stateMachine.transitionTo(EmergencyState.COMMUNITY_MOBILIZATION, "Mobilizing")
+
+        // Pre-simulate acceptance action for an eligible tier 1 responder
+        actionRepo.saveAction(
+            com.example.okdrivers.domain.model.ResponderAction(
+                id = java.util.UUID.randomUUID().toString(),
+                incidentId = "incident_accept",
+                responderId = firstResponderId,
+                timestamp = System.currentTimeMillis(),
+                action = com.example.okdrivers.domain.model.ResponderActionType.ACCEPTED,
+                latitude = 37.7749,
+                longitude = -122.4194
+            )
+        )
+
+        val outcome = mobilizationManager.mobilize(
+            incidentId = "incident_accept",
+            lat = 37.7749,
+            lng = -122.4194,
+            allResponders = responders
+        )
+
+        assertTrue(outcome is MobilizationOutcome.Accepted)
+        assertEquals(EmergencyState.COMMUNITY_RESPONSE, stateMachine.currentState.value)
+
+        // Verify NOTIFIED, ACCEPTED, and ENROUTE actions were recorded
+        val actions = actionRepo.actions
+        assertTrue(actions.any { it.action == com.example.okdrivers.domain.model.ResponderActionType.NOTIFIED })
+        assertTrue(actions.any { it.action == com.example.okdrivers.domain.model.ResponderActionType.ACCEPTED })
+        assertTrue(actions.any { it.action == com.example.okdrivers.domain.model.ResponderActionType.ENROUTE })
     }
 }
