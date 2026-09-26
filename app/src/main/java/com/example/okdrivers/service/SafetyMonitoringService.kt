@@ -14,9 +14,11 @@ import com.example.okdrivers.MainActivity
 import com.example.okdrivers.R
 import com.example.okdrivers.data.repository.CurrentProfileRepository
 import com.example.okdrivers.data.repository.SamplingRateRepository
+import com.example.okdrivers.data.repository.SensorRepository
 import com.example.okdrivers.data.repository.ServiceStateRepository
 import com.example.okdrivers.domain.engine.AnomalyManager
 import com.example.okdrivers.domain.engine.BaselineManager
+import com.example.okdrivers.domain.engine.DriverStateEngine
 import com.example.okdrivers.domain.engine.EmergencyOrchestratorCoordinator
 import com.example.okdrivers.domain.engine.IncidentStateMachine
 import com.example.okdrivers.domain.engine.LiveAnomalyStatusHolder
@@ -40,6 +42,12 @@ class SafetyMonitoringService : Service() {
 
     @Inject
     lateinit var samplingRateRepository: SamplingRateRepository
+
+    @Inject
+    lateinit var sensorRepository: SensorRepository
+
+    @Inject
+    lateinit var driverStateEngine: DriverStateEngine
 
     @Inject
     lateinit var motionSensorManager: MotionSensorManager
@@ -136,30 +144,56 @@ class SafetyMonitoringService : Service() {
                 val vehicleId = currentProfileRepository.observeCurrentVehicleId().first()
 
                 launch {
-                    motionSensorManager.observeMotion().collect { sample ->
-                        val sensorSample = SensorSample(
-                            timestamp = sample.timestamp,
-                            accelerationX = sample.accelerationX,
-                            accelerationY = sample.accelerationY,
-                            accelerationZ = sample.accelerationZ,
-                            gForce = sample.gForce,
-                            pitch = 0f, roll = 0f, yaw = 0f,
-                            latitude = 37.7749, longitude = -122.4194, speedKmh = 45f, heading = 0f,
-                            batteryPercentage = 100, isCharging = false, isNetworkOnline = true
-                        )
-                        val updateResult = baselineManager.updateDriverBaseline(driverId, vehicleId, sensorSample)
-                        val activeBaselineStats = updateResult.baseline
+                    sensorRepository.observeSensorSnapshot().collect { snapshot ->
+                        val motion = snapshot.motion
+                        val gps = snapshot.gps
+                        val battery = snapshot.battery
+                        val network = snapshot.network
+                        val telemetry = snapshot.vehicleTelemetry
+                        val dms = snapshot.dms
 
-                        // Delegate to domain manager
+                        val driverState = dms?.let { driverStateEngine.process(it) }
+                        val gpsSpeedKmh = gps?.let { it.speedMetersPerSecond * 3.6f } ?: (telemetry?.speedKmh ?: 0f)
+                        val heading = gps?.headingDegrees ?: 0f
+
+                        val sensorSample = SensorSample(
+                            timestamp = motion?.timestamp ?: System.currentTimeMillis(),
+                            accelerationX = motion?.accelerationX ?: 0f,
+                            accelerationY = motion?.accelerationY ?: 0f,
+                            accelerationZ = motion?.accelerationZ ?: 0f,
+                            gForce = motion?.gForce ?: 0f,
+                            pitch = motion?.gyroX ?: 0f,
+                            roll = motion?.gyroY ?: 0f,
+                            yaw = motion?.gyroZ ?: 0f,
+                            latitude = gps?.latitude ?: 37.7749,
+                            longitude = gps?.longitude ?: -122.4194,
+                            speedKmh = gpsSpeedKmh,
+                            heading = heading,
+                            batteryPercentage = battery?.batteryPercentage ?: 100,
+                            isCharging = battery?.isCharging ?: false,
+                            isNetworkOnline = network?.isOnline ?: true
+                        )
+
+                        val driverBaselineResult = baselineManager.updateDriverBaseline(driverId, vehicleId, sensorSample)
+                        val driverBaseline = driverBaselineResult.baseline
+
+                        val vehicleBaseline = if (telemetry != null) {
+                            val vehicleBaselineResult = baselineManager.updateVehicleBaseline(driverId, vehicleId, telemetry)
+                            vehicleBaselineResult.baseline
+                        } else {
+                            null
+                        }
+
+                        // Delegate to domain manager with full multi-sensor fusion
                         val result = anomalyManager.evaluateAndPersist(
                             driverId = driverId,
                             vehicleId = vehicleId,
-                            vehicleTelemetry = null,
-                            driverState = null,
-                            motionSensor = sample,
-                            gpsLocation = null,
-                            driverBaseline = activeBaselineStats,
-                            vehicleBaseline = activeBaselineStats
+                            vehicleTelemetry = telemetry,
+                            driverState = driverState,
+                            motionSensor = motion,
+                            gpsLocation = gps,
+                            driverBaseline = driverBaseline,
+                            vehicleBaseline = vehicleBaseline
                         )
                         liveAnomalyStatusHolder.updateConfidence(result.overallConfidence)
                     }
