@@ -12,20 +12,24 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.example.okdrivers.MainActivity
 import com.example.okdrivers.R
+import com.example.okdrivers.data.repository.CurrentProfileRepository
 import com.example.okdrivers.data.repository.SamplingRateRepository
 import com.example.okdrivers.domain.engine.AnomalyManager
-import com.example.okdrivers.sensors.GpsLocationManager
-import com.example.okdrivers.sensors.MotionSensorManager
-import com.example.okdrivers.sensors.VehicleTelemetrySimulator
+import com.example.okdrivers.domain.engine.BaselineManager
 import com.example.okdrivers.domain.engine.EmergencyOrchestratorCoordinator
 import com.example.okdrivers.domain.engine.IncidentStateMachine
 import com.example.okdrivers.domain.model.EmergencyState
+import com.example.okdrivers.domain.model.SensorSample
+import com.example.okdrivers.sensors.GpsLocationManager
+import com.example.okdrivers.sensors.MotionSensorManager
+import com.example.okdrivers.sensors.VehicleTelemetrySimulator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -46,6 +50,12 @@ class SafetyMonitoringService : Service() {
 
     @Inject
     lateinit var anomalyManager: AnomalyManager
+
+    @Inject
+    lateinit var baselineManager: BaselineManager
+
+    @Inject
+    lateinit var currentProfileRepository: CurrentProfileRepository
 
     @Inject
     lateinit var coordinator: EmergencyOrchestratorCoordinator
@@ -114,19 +124,34 @@ class SafetyMonitoringService : Service() {
         // Observe sampling rate and collect sensor feeds
         serviceScope.launch {
             samplingRateRepository.samplingRateFlow.collectLatest { rate ->
-                // Monitor sensor streams using rate.intervalMillis
+                val driverId = currentProfileRepository.observeCurrentDriverId().first()
+                val vehicleId = currentProfileRepository.observeCurrentVehicleId().first()
+
                 launch {
                     motionSensorManager.observeMotion().collect { sample ->
+                        val sensorSample = SensorSample(
+                            timestamp = sample.timestamp,
+                            accelerationX = sample.accelerationX,
+                            accelerationY = sample.accelerationY,
+                            accelerationZ = sample.accelerationZ,
+                            gForce = sample.gForce,
+                            pitch = 0f, roll = 0f, yaw = 0f,
+                            latitude = 37.7749, longitude = -122.4194, speedKmh = 45f, heading = 0f,
+                            batteryPercentage = 100, isCharging = false, isNetworkOnline = true
+                        )
+                        val updateResult = baselineManager.updateDriverBaseline(driverId, vehicleId, sensorSample)
+                        val activeBaselineStats = updateResult.baseline
+
                         // Delegate to domain manager
                         anomalyManager.evaluateAndPersist(
-                            driverId = "driver_1",
-                            vehicleId = "vehicle_1",
+                            driverId = driverId,
+                            vehicleId = vehicleId,
                             vehicleTelemetry = null,
                             driverState = null,
                             motionSensor = sample,
                             gpsLocation = null,
-                            driverBaseline = null,
-                            vehicleBaseline = null
+                            driverBaseline = activeBaselineStats,
+                            vehicleBaseline = activeBaselineStats
                         )
                     }
                 }

@@ -45,4 +45,9 @@
         android:name="com.example.okdrivers.ui.profile.VehicleProfileFragment"
         android:label="fragment_vehicle_profile"
         tools:layout="@layout/fragment_vehicle_profile" />
+    <fragment
+        android:id="@+id/baselineAnalyticsFragment"
+        android:name="com.example.okdrivers.ui.analytics.BaselineAnalyticsFragment"
+        android:label="fragment_baseline_analytics"
+        tools:layout="@layout/fragment_baseline_analytics" />
 </navigation>

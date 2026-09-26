@@ -1,24 +1,13 @@
 package com.example.okdrivers.domain.engine
 
 import javax.inject.Inject
-import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
 
 class AnomalyConfidenceEngine @Inject constructor() {
-
-    companion object {
-        private const val MIN_STANDARD_DEVIATION = 0.05f
-
-        private const val NORMAL_Z_SCORE = 1.0f
-        private const val ANOMALY_Z_SCORE = 3.0f
-    }
 
     fun calculateDriverGForceDeviation(
         currentGForce: Float,
         baseline: BaselineStatistics
     ): DeviationResult {
-
         if (baseline.sampleCount < 2) {
             return DeviationResult(
                 deviationScore = 0f,
@@ -26,29 +15,12 @@ class AnomalyConfidenceEngine @Inject constructor() {
                 isOutsideNormalRange = false
             )
         }
-
-        val standardDeviation =
-            max(
-                baseline.gForceStdDev,
-                MIN_STANDARD_DEVIATION
-            )
-
-        val zScore =
-            abs(
-                currentGForce - baseline.averageGForce
-            ) / standardDeviation
-
-        val confidence =
-            normalizeZScore(zScore)
-
-        val outsideRange =
-            currentGForce < baseline.minimumGForce ||
-                    currentGForce > baseline.maximumGForce
-
-        return DeviationResult(
-            deviationScore = zScore,
-            confidence = confidence,
-            isOutsideNormalRange = outsideRange
+        return DeviationCalculator.computeDeviation(
+            currentValue = currentGForce,
+            mean = baseline.averageGForce,
+            stdDev = baseline.gForceStdDev,
+            minVal = baseline.minimumGForce,
+            maxVal = baseline.maximumGForce
         )
     }
 
@@ -56,7 +28,6 @@ class AnomalyConfidenceEngine @Inject constructor() {
         currentSpeedKmh: Float,
         baseline: BaselineStatistics
     ): DeviationResult {
-
         if (baseline.sampleCount < 2) {
             return DeviationResult(
                 deviationScore = 0f,
@@ -64,24 +35,12 @@ class AnomalyConfidenceEngine @Inject constructor() {
                 isOutsideNormalRange = false
             )
         }
-
-        val standardDeviation =
-            max(
-                baseline.speedStdDev,
-                MIN_STANDARD_DEVIATION
-            )
-
-        val zScore =
-            abs(
-                currentSpeedKmh - baseline.averageSpeedKmh
-            ) / standardDeviation
-
-        return DeviationResult(
-            deviationScore = zScore,
-            confidence = normalizeZScore(zScore),
-            isOutsideNormalRange =
-                currentSpeedKmh < baseline.minimumSpeedKmh ||
-                        currentSpeedKmh > baseline.maximumSpeedKmh
+        return DeviationCalculator.computeDeviation(
+            currentValue = currentSpeedKmh,
+            mean = baseline.averageSpeedKmh,
+            stdDev = baseline.speedStdDev,
+            minVal = baseline.minimumSpeedKmh,
+            maxVal = baseline.maximumSpeedKmh
         )
     }
 
@@ -89,7 +48,6 @@ class AnomalyConfidenceEngine @Inject constructor() {
         currentRpm: Float,
         baseline: BaselineStatistics
     ): DeviationResult {
-
         if (baseline.sampleCount < 2) {
             return DeviationResult(
                 deviationScore = 0f,
@@ -97,24 +55,12 @@ class AnomalyConfidenceEngine @Inject constructor() {
                 isOutsideNormalRange = false
             )
         }
-
-        val standardDeviation =
-            max(
-                baseline.rpmStdDev,
-                MIN_STANDARD_DEVIATION
-            )
-
-        val zScore =
-            abs(
-                currentRpm - baseline.averageRpm
-            ) / standardDeviation
-
-        return DeviationResult(
-            deviationScore = zScore,
-            confidence = normalizeZScore(zScore),
-            isOutsideNormalRange =
-                currentRpm < baseline.minimumRpm ||
-                        currentRpm > baseline.maximumRpm
+        return DeviationCalculator.computeDeviation(
+            currentValue = currentRpm,
+            mean = baseline.averageRpm,
+            stdDev = baseline.rpmStdDev,
+            minVal = baseline.minimumRpm,
+            maxVal = baseline.maximumRpm
         )
     }
 
@@ -122,7 +68,6 @@ class AnomalyConfidenceEngine @Inject constructor() {
         driverDeviation: DeviationResult,
         vehicleDeviations: List<DeviationResult>
     ): AnomalyConfidenceResult {
-
         val vehicleConfidence =
             if (vehicleDeviations.isEmpty()) {
                 0f
@@ -165,22 +110,5 @@ class AnomalyConfidenceEngine @Inject constructor() {
             driverAnomaly = driverAnomaly,
             vehicleAnomaly = vehicleAnomaly
         )
-    }
-
-    private fun normalizeZScore(
-        zScore: Float
-    ): Float {
-
-        return when {
-            zScore <= NORMAL_Z_SCORE -> 0f
-
-            zScore >= ANOMALY_Z_SCORE -> 1f
-
-            else ->
-                (
-                        (zScore - NORMAL_Z_SCORE) /
-                                (ANOMALY_Z_SCORE - NORMAL_Z_SCORE)
-                        ).coerceIn(0f, 1f)
-        }
     }
 }
