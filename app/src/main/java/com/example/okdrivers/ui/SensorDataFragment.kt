@@ -2,59 +2,62 @@ package com.example.okdrivers.ui
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
+import android.widget.TextView
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.okdrivers.R
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+@AndroidEntryPoint
+class SensorDataFragment : Fragment(R.layout.fragment_sensor_data) {
 
-/**
- * A simple [Fragment] subclass.
- * Use the [SensorDataFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-class SensorDataFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    private val viewModel: SensorDataViewModel by viewModels()
+    private var tvSensorContent: TextView? = null
+    private val timeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        tvSensorContent = view.findViewById(R.id.tvSensorContent)
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_sensor_data, container, false)
-    }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collectLatest { state ->
+                    val text = """
+                        ✣  Accelerometer
+                            X: ${String.format(Locale.US, "%.2f", state.accelX)}   Y: ${String.format(Locale.US, "%.2f", state.accelY)}   Z: ${String.format(Locale.US, "%.2f", state.accelZ)} G (Total: ${String.format(Locale.US, "%.2f", state.gForce)}G)
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment SensorDataFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            SensorDataFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+                        ◉  Gyroscope
+                            Pitch: ${String.format(Locale.US, "%.1f°", state.gyroX)}   Roll: ${String.format(Locale.US, "%.1f°", state.gyroY)}   Yaw: ${String.format(Locale.US, "%.1f°", state.gyroZ)}
+
+                        📍  GPS
+                            Lat: ${String.format(Locale.US, "%.4f°", state.latitude)}   Long: ${String.format(Locale.US, "%.4f°", state.longitude)}
+                            Speed: ${String.format(Locale.US, "%.1f km/h", state.speedKmh)}   Heading: ${String.format(Locale.US, "%.0f°", state.heading)}
+
+                        ▣  Battery
+                            ${state.batteryPercentage}%   Charging: ${if (state.isCharging) "Yes" else "No"}
+
+                        ⌁  Network
+                            ${if (state.isOnline) "Online" else "Offline"}
+
+                        ▣  Vehicle Telemetry
+                            Speed: ${String.format(Locale.US, "%.1f km/h", state.telemetrySpeed)}   RPM: ${state.telemetryRpm.toInt()}
+                            Engine Load: ${state.engineLoad.toInt()}%  Temp: ${String.format(Locale.US, "%.1f°C", state.engineTemp)}
+
+                        ◷  Timestamp
+                            ${timeFormat.format(Date(state.timestamp))}
+                    """.trimIndent()
+
+                    tvSensorContent?.text = text
                 }
             }
+        }
     }
 }
