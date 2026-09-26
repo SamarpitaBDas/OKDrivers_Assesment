@@ -7,13 +7,32 @@ import com.example.okdrivers.sensors.GpsLocationSample
 import com.example.okdrivers.sensors.MotionSensorSample
 import com.example.okdrivers.sensors.VehicleTelemetrySample
 
+object AnomalyThresholds {
+    // Centralized tunable thresholds for Section 18 demo and live tuning
+    var hardBrakingGForceThreshold: Float = 0.85f
+    var severeGForceThreshold: Float = 1.3f
+    var rapidSpeedDropDeltaKmh: Float = 20f
+    var minSpeedForEngineStopKmh: Float = 20f
+    var highTempThresholdCelsius: Float = 120f
+    var lowVoltageThreshold: Float = 11.0f
+
+    fun resetToDefaults() {
+        hardBrakingGForceThreshold = 0.85f
+        severeGForceThreshold = 1.3f
+        rapidSpeedDropDeltaKmh = 20f
+        minSpeedForEngineStopKmh = 20f
+        highTempThresholdCelsius = 120f
+        lowVoltageThreshold = 11.0f
+    }
+}
+
 data class AnomalyRuleConfig(
-    val hardBrakingGForceThreshold: Float = 0.85f,
-    val severeGForceThreshold: Float = 1.3f,
-    val rapidSpeedDropDeltaKmh: Float = 20f,
-    val minSpeedForEngineStopKmh: Float = 20f,
-    val highTempThresholdCelsius: Float = 120f,
-    val lowVoltageThreshold: Float = 11.0f
+    val hardBrakingGForceThreshold: Float = AnomalyThresholds.hardBrakingGForceThreshold,
+    val severeGForceThreshold: Float = AnomalyThresholds.severeGForceThreshold,
+    val rapidSpeedDropDeltaKmh: Float = AnomalyThresholds.rapidSpeedDropDeltaKmh,
+    val minSpeedForEngineStopKmh: Float = AnomalyThresholds.minSpeedForEngineStopKmh,
+    val highTempThresholdCelsius: Float = AnomalyThresholds.highTempThresholdCelsius,
+    val lowVoltageThreshold: Float = AnomalyThresholds.lowVoltageThreshold
 )
 
 data class RuleEvaluationContext(
