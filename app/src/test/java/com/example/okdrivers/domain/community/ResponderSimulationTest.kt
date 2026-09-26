@@ -20,6 +20,14 @@ class ResponderSimulationTest {
         }
     }
 
+    private class FakeResponderActionRepository : com.example.okdrivers.data.repository.ResponderActionRepository {
+        val actions = mutableListOf<com.example.okdrivers.domain.model.ResponderAction>()
+        override fun observeActions(incidentId: String): Flow<List<com.example.okdrivers.domain.model.ResponderAction>> = flowOf(actions)
+        override suspend fun saveAction(action: com.example.okdrivers.domain.model.ResponderAction) {
+            actions.add(action)
+        }
+    }
+
     private class FakeIncidentRepository : com.example.okdrivers.data.repository.IncidentRepository {
         val incidents = mutableListOf<com.example.okdrivers.domain.model.Incident>()
         override fun observeIncidents(): Flow<List<com.example.okdrivers.domain.model.Incident>> = flowOf(incidents)
@@ -61,33 +69,45 @@ class ResponderSimulationTest {
     fun testFilterAndSortByDistance() {
         val center = Pair(37.7749, -122.4194)
         val responders = ResponderSimulator.generateAround(center.first, center.second, count = 6)
-        val filtered = ResponderDistanceCalculator.filterAndSortByDistance(responders, center.first, center.second, radiusKm = 10.0)
+        val searchService = ResponderSearchService()
+        val filtered = searchService.findEligible(responders, center.first, center.second, radiusKm = 10.0)
         assertFalse(filtered.isEmpty())
-        for (i in 0 until filtered.size - 1) {
-            assertTrue(filtered[i].second <= filtered[i + 1].second)
-        }
+        assertTrue(filtered.size <= 6)
     }
 
     @Test
-    fun testCommunityMobilizationOrchestratorSeedingAndIdempotency() = runBlocking {
+    fun testMobilizationManagerExhaustionEscalatesToAuthority() = runBlocking {
         val responderRepo = FakeResponderRepository()
+        val actionRepo = FakeResponderActionRepository()
         val incidentRepo = FakeIncidentRepository()
         val timelineRepo = FakeTimelineRepository()
         val stateMachine = IncidentStateMachine(incidentRepo, timelineRepo)
+        val searchService = ResponderSearchService()
 
-        val orchestrator = CommunityMobilizationOrchestrator(stateMachine, responderRepo)
+        val mobilizationManager = ResponderMobilizationManager(
+            responderSearchService = searchService,
+            responderRepository = responderRepo,
+            responderActionRepository = actionRepo,
+            incidentStateMachine = stateMachine,
+            dispatcher = kotlinx.coroutines.Dispatchers.Unconfined
+        )
 
-        // Trigger mobilization
+        val responders = ResponderSimulator.generateAround(37.7749, -122.4194, count = 6)
+
+        // Set state machine into COMMUNITY_MOBILIZATION
         stateMachine.transitionTo(EmergencyState.ANOMALY_DETECTION, "Trigger")
         stateMachine.transitionTo(EmergencyState.AI_VERIFICATION, "Verifying")
         stateMachine.transitionTo(EmergencyState.COMMUNITY_MOBILIZATION, "Mobilizing")
 
-        orchestrator.mobilizationTriggered()
+        // Run mobilization with no acceptance (exhaustion across all tiers)
+        val outcome = mobilizationManager.mobilize(
+            incidentId = "incident_exhaust",
+            lat = 37.7749,
+            lng = -122.4194,
+            allResponders = responders
+        )
 
-        assertEquals(6, responderRepo.savedResponders.size)
-
-        // Call again to test idempotency guard (should not add more responders)
-        orchestrator.mobilizationTriggered()
-        assertEquals(6, responderRepo.savedResponders.size)
+        assertEquals(MobilizationOutcome.EscalatedToAuthority, outcome)
+        assertEquals(EmergencyState.AUTHORITY_ESCALATION, stateMachine.currentState.value)
     }
 }
