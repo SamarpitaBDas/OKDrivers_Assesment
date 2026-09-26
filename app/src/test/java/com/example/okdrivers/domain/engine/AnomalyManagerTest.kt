@@ -1,7 +1,11 @@
 package com.example.okdrivers.domain.engine
 
 import com.example.okdrivers.data.repository.AnomalyRepository
+import com.example.okdrivers.data.repository.IncidentRepository
+import com.example.okdrivers.data.repository.IncidentTimelineRepository
 import com.example.okdrivers.domain.model.AnomalyEvent
+import com.example.okdrivers.domain.model.Incident
+import com.example.okdrivers.domain.model.IncidentStateTransition
 import com.example.okdrivers.sensors.MotionSensorSample
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -16,6 +20,23 @@ class AnomalyManagerTest {
         override fun observeAnomalies(): Flow<List<AnomalyEvent>> = flowOf(savedEvents)
         override suspend fun saveAnomaly(anomaly: AnomalyEvent) {
             savedEvents.add(anomaly)
+        }
+    }
+
+    private class FakeIncidentRepository : IncidentRepository {
+        val savedIncidents = mutableListOf<Incident>()
+        override fun observeIncidents(): Flow<List<Incident>> = flowOf(savedIncidents)
+        override suspend fun getIncident(id: String): Incident? = savedIncidents.find { it.id == id }
+        override suspend fun saveIncident(incident: Incident) {
+            savedIncidents.add(incident)
+        }
+    }
+
+    private class FakeTimelineRepository : IncidentTimelineRepository {
+        val savedTransitions = mutableListOf<IncidentStateTransition>()
+        override fun observeTimeline(incidentId: String): Flow<List<IncidentStateTransition>> = flowOf(savedTransitions)
+        override suspend fun saveTransition(transition: IncidentStateTransition) {
+            savedTransitions.add(transition)
         }
     }
 
@@ -44,9 +65,12 @@ class AnomalyManagerTest {
     )
 
     @Test
-    fun testPersistsEveryAnomalyEventIncludingNonEscalating08GBraking() = runBlocking {
-        val fakeRepository = FakeAnomalyRepository()
-        val anomalyManager = AnomalyManager(anomalyEngine, fakeRepository)
+    fun testPersistsEveryAnomalyEventIncludingNonEscalating08GBrakingWithoutTriggeringIncident() = runBlocking {
+        val fakeAnomalyRepo = FakeAnomalyRepository()
+        val fakeIncidentRepo = FakeIncidentRepository()
+        val fakeTimelineRepo = FakeTimelineRepository()
+        val stateMachine = IncidentStateMachine(fakeIncidentRepo, fakeTimelineRepo)
+        val anomalyManager = AnomalyManager(anomalyEngine, fakeAnomalyRepo, stateMachine)
 
         val motion = MotionSensorSample(
             timestamp = System.currentTimeMillis(),
@@ -74,8 +98,57 @@ class AnomalyManagerTest {
         assertFalse(result.isEscalated)
         assertTrue(result.events.isNotEmpty())
 
-        // Verify that even though it did not require verification or escalation, it was saved to the repository
-        assertEquals(1, fakeRepository.savedEvents.size)
-        assertEquals(result.events.first().id, fakeRepository.savedEvents.first().id)
+        // Saved to anomaly repo (full log)
+        assertEquals(1, fakeAnomalyRepo.savedEvents.size)
+        // NOT escalated to incident state machine because requiresVerification = false and severity = LOW/MEDIUM
+        assertEquals(0, fakeIncidentRepo.savedIncidents.size)
+        assertEquals(0, fakeTimelineRepo.savedTransitions.size)
+    }
+
+    @Test
+    fun testCriticalAnomalyFeedsStateMachineWithReasonAndSeverity() = runBlocking {
+        val fakeAnomalyRepo = FakeAnomalyRepository()
+        val fakeIncidentRepo = FakeIncidentRepository()
+        val fakeTimelineRepo = FakeTimelineRepository()
+        val stateMachine = IncidentStateMachine(fakeIncidentRepo, fakeTimelineRepo)
+        val anomalyManager = AnomalyManager(anomalyEngine, fakeAnomalyRepo, stateMachine)
+
+        val telemetry = com.example.okdrivers.sensors.VehicleTelemetrySample(
+            timestamp = System.currentTimeMillis(),
+            speedKmh = 80f,
+            rpm = 0f, // Engine stop anomaly (Critical)
+            engineLoad = 0f,
+            throttlePosition = 0f,
+            engineTemperatureCelsius = 90f,
+            batteryVoltage = 12.6f,
+            diagnosticFault = null,
+            airbagDeployed = false
+        )
+
+        val result = anomalyManager.evaluateAndPersist(
+            driverId = "driver_1",
+            vehicleId = "vehicle_1",
+            vehicleTelemetry = telemetry,
+            driverState = null,
+            motionSensor = null,
+            gpsLocation = null,
+            driverBaseline = null,
+            vehicleBaseline = sampleDriverBaseline
+        )
+
+        assertTrue(result.requiresVerification)
+        assertTrue(result.events.isNotEmpty())
+
+        // Saved to anomaly repo
+        assertTrue(fakeAnomalyRepo.savedEvents.isNotEmpty())
+        // Fed into incident state machine
+        assertEquals(1, fakeIncidentRepo.savedIncidents.size)
+        assertEquals(1, fakeTimelineRepo.savedTransitions.size)
+
+        val incident = fakeIncidentRepo.savedIncidents.first()
+        val transition = fakeTimelineRepo.savedTransitions.first()
+
+        assertEquals(result.events.first().severity, incident.severity)
+        assertEquals(result.events.first().reason, transition.reason)
     }
 }

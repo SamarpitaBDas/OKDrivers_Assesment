@@ -10,7 +10,8 @@ import javax.inject.Inject
 
 class AnomalyManager @Inject constructor(
     private val anomalyEngine: AnomalyEngine,
-    private val anomalyRepository: AnomalyRepository
+    private val anomalyRepository: AnomalyRepository,
+    private val incidentStateMachine: IncidentStateMachine
 ) {
 
     suspend fun evaluateAndPersist(
@@ -42,6 +43,14 @@ class AnomalyManager @Inject constructor(
         // Persist every AnomalyEvent regardless of whether it escalates, ensuring a full log
         for (event in result.events) {
             anomalyRepository.saveAnomaly(event)
+
+            // Feed rule trigger reason + severity into the incident state machine
+            incidentStateMachine.handleAnomalyEvent(
+                event = event,
+                driverId = driverId,
+                vehicleId = vehicleId,
+                now = now
+            )
         }
 
         return result
