@@ -12,7 +12,8 @@ import javax.inject.Singleton
 class AuthorityEscalationOrchestrator @Inject constructor(
     private val incidentStateMachine: IncidentStateMachine,
     private val incidentPayloadBuilder: IncidentPayloadBuilder,
-    private val emergencyApiService: EmergencyApiService
+    private val emergencyApiService: EmergencyApiService,
+    private val familyContactNotificationService: FamilyContactNotificationService
 ) {
     private val escalatedIncidentIds = mutableSetOf<String>()
 
@@ -37,6 +38,11 @@ class AuthorityEscalationOrchestrator @Inject constructor(
 
         val payload = incidentPayloadBuilder.build(incidentId)
         emergencyApiService.sendPayload(payload)
+        familyContactNotificationService.notifyFamilyContact(
+            incidentId = incidentId,
+            severity = payload.severity.name,
+            locationSummary = payload.summaryText
+        )
         return payload
     }
 }

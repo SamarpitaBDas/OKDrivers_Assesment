@@ -151,4 +151,16 @@ class IncidentPayloadTest {
         assertEquals("CRITICAL EMERGENCY TEST", notifRepo.notifications.first().message)
         assertEquals(NotificationRecipient.EMERGENCY_AUTHORITY, notifRepo.notifications.first().recipientType)
     }
+
+    @Test
+    fun testFamilyContactNotificationService() = runBlocking {
+        val notifRepo = FakeNotificationRepository()
+        val familyService = FamilyContactNotificationService(notifRepo)
+
+        val result = familyService.notifyFamilyContact("incident_777", "CRITICAL", "San Francisco")
+        assertTrue(result.isSuccess)
+        assertEquals(1, notifRepo.notifications.size)
+        assertEquals(NotificationRecipient.FAMILY_CONTACT, notifRepo.notifications.first().recipientType)
+        assertTrue(notifRepo.notifications.first().message.contains("CRITICAL"))
+    }
 }
