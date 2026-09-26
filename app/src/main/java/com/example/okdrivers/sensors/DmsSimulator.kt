@@ -5,8 +5,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlin.random.Random
 import javax.inject.Inject
+import javax.inject.Singleton
 import com.example.okdrivers.domain.model.DriverCondition
 
+@Singleton
 class DmsSimulator @Inject constructor() {
 
     enum class AnomalyType {

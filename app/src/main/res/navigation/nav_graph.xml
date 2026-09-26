@@ -50,4 +50,9 @@
         android:name="com.example.okdrivers.ui.analytics.BaselineAnalyticsFragment"
         android:label="fragment_baseline_analytics"
         tools:layout="@layout/fragment_baseline_analytics" />
+    <fragment
+        android:id="@+id/testControlsFragment"
+        android:name="com.example.okdrivers.ui.testcontrols.TestControlsFragment"
+        android:label="fragment_test_controls"
+        tools:layout="@layout/fragment_test_controls" />
 </navigation>

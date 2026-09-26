@@ -5,7 +5,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlin.random.Random
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class VehicleTelemetrySimulator @Inject constructor() {
 
     enum class AnomalyType {

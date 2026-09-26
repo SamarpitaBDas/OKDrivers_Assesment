@@ -138,4 +138,11 @@ class IncidentStateMachine @Inject constructor(
     }
 
     fun getActiveIncident(): Incident? = activeIncident
+
+    suspend fun forceResetToNormal(reason: String = "Test control reset to NORMAL_OPERATION") {
+        if (_currentState.value != EmergencyState.NORMAL_OPERATION) {
+            _currentState.value = EmergencyState.NORMAL_OPERATION
+            activeIncident = null
+        }
+    }
 }

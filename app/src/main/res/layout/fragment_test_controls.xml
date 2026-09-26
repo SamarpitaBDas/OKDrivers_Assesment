@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/ok_dark"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Test Scenario Controls (Section 18)"
+            android:textColor="@android:color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <!-- Card 1: Live State & Evidence Feedback Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:cardBackgroundColor="@color/ok_dark_card"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvActiveScenarioName"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="1. Normal Driving"
+                        android:textColor="@color/ok_orange"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvEmergencyStateBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/home_status_icon"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="3dp"
+                        android:text="NORMAL"
+                        android:textColor="@android:color/white"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvActiveIncidentId"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Active Incident ID: —"
+                    android:textColor="#B0BEC5"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tvStatusMessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="System operating normally — no active triggers"
+                    android:textColor="@android:color/white"
+                    android:textSize="13sp" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Card 2: Section 18 Test Triggers -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:cardBackgroundColor="@color/ok_dark_card"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Mandatory Section 18 Scenarios"
+                    android:textColor="#90A4AE"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnNormalDriving"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="12dp"
+                    android:text="1. Normal Driving (Reset)"
+                    android:textAllCaps="false"
+                    android:textColor="@color/ok_green_light"
+                    app:cornerRadius="8dp"
+                    app:strokeColor="@color/ok_green" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnHardBraking"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
+                    android:text="2. 0.8G Hard Brake (No Escalation)"
+                    android:textAllCaps="false"
+                    android:textColor="#FDE68A"
+                    app:cornerRadius="8dp"
+                    app:strokeColor="@color/ok_orange" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSuspectedAccident"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
+                    android:text="3. Suspected Accident (Combo Event)"
+                    android:textAllCaps="false"
+                    android:textColor="#FCA5A5"
+                    app:cornerRadius="8dp"
+                    app:strokeColor="@color/ok_red" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDriverResponds"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
+                    android:text="4. Driver Responds (&quot;I'm okay&quot;)"
+                    android:textAllCaps="false"
+                    android:textColor="@color/ok_green_light"
+                    app:cornerRadius="8dp"
+                    app:strokeColor="@color/ok_green" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDriverSilent"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
+                    android:text="5. Driver Silent (Exhaust 3 Attempts)"
+                    android:textAllCaps="false"
+                    android:textColor="#FDE68A"
+                    app:cornerRadius="8dp"
+                    app:strokeColor="@color/ok_orange" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnResponderAccepts"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
+                    android:text="6. Responder Accepts Mobilization"
+                    android:textAllCaps="false"
+                    android:textColor="@color/ok_green_light"
+                    app:cornerRadius="8dp"
+                    app:strokeColor="@color/ok_green" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnNoCommunityResponse"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
+                    android:text="7. No Community Response (Exhaust 20km)"
+                    android:textAllCaps="false"
+                    android:textColor="#FCA5A5"
+                    app:cornerRadius="8dp"
+                    app:strokeColor="@color/ok_red" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAirbagEvent"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
+                    android:text="8. Critical Airbag Event (Immediate)"
+                    android:textAllCaps="false"
+                    android:textColor="#FCA5A5"
+                    app:cornerRadius="8dp"
+                    app:strokeColor="@color/ok_red" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+</ScrollView>

@@ -5,23 +5,40 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlin.math.sqrt
-import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
+import javax.inject.Singleton
+import kotlin.math.sqrt
 
-class MotionSensorManager @Inject constructor(
+@Singleton
+open class MotionSensorManager @Inject constructor(
     @ApplicationContext context: Context
 ) {
-    private val sensorManager =
+    private val sensorManager by lazy {
         context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-    private val accelerometer =
+    }
+    private val accelerometer by lazy {
         sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-    private val gyroscope =
+    }
+    private val gyroscope by lazy {
         sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
-    fun observeMotion(
+    }
+
+    @Volatile
+    private var simulatedGForce: Float? = null
+
+    fun injectSimulatedGForce(value: Float) {
+        simulatedGForce = value
+    }
+
+    fun clearSimulatedGForce() {
+        simulatedGForce = null
+    }
+
+    open fun observeMotion(
         samplingPeriodUs: Int = SensorManager.SENSOR_DELAY_GAME
     ): Flow<MotionSensorSample> = callbackFlow {
         var latestAccelerationX = 0f
@@ -50,15 +67,16 @@ class MotionSensorManager @Inject constructor(
                             latestAccelerationY * latestAccelerationY +
                             latestAccelerationZ * latestAccelerationZ
                 )
-                val gForce =
-                    accelerationMagnitude / SensorManager.GRAVITY_EARTH
+                val calculatedGForce = accelerationMagnitude / SensorManager.GRAVITY_EARTH
+                val finalGForce = simulatedGForce ?: calculatedGForce
+
                 trySend(
                     MotionSensorSample(
                         timestamp = System.currentTimeMillis(),
                         accelerationX = latestAccelerationX,
                         accelerationY = latestAccelerationY,
                         accelerationZ = latestAccelerationZ,
-                        gForce = gForce,
+                        gForce = finalGForce,
                         gyroX = latestGyroX,
                         gyroY = latestGyroY,
                         gyroZ = latestGyroZ
@@ -69,7 +87,6 @@ class MotionSensorManager @Inject constructor(
                 sensor: Sensor?,
                 accuracy: Int
             ) {
-                //currently no accuracy changes
             }
         }
 
@@ -99,7 +116,7 @@ class MotionSensorManager @Inject constructor(
             }
         }
 
-        if (registeredSensorCount == 0) {
+        if (registeredSensorCount == 0 && simulatedGForce == null) {
             close(
                 IllegalStateException(
                     "Neither accelerometer nor gyroscope is available."

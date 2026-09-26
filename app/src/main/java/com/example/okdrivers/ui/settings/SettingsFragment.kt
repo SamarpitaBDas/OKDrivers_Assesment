@@ -24,6 +24,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     private var cardProfile: MaterialCardView? = null
     private var cardProfileVehicle: MaterialCardView? = null
     private var cardBaselines: MaterialCardView? = null
+    private var cardTestControls: MaterialCardView? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -31,6 +32,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         cardProfile = view.findViewById(R.id.cardProfile)
         cardProfileVehicle = view.findViewById(R.id.cardProfileVehicle)
         cardBaselines = view.findViewById(R.id.cardBaselines)
+        cardTestControls = view.findViewById(R.id.cardTestControls)
 
         cardProfile?.setOnClickListener {
             findNavController().navigate(R.id.driverProfileFragment)
@@ -42,6 +44,10 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
         cardBaselines?.setOnClickListener {
             findNavController().navigate(R.id.baselineAnalyticsFragment)
+        }
+
+        cardTestControls?.setOnClickListener {
+            findNavController().navigate(R.id.testControlsFragment)
         }
 
         switchBatterySaver?.setOnCheckedChangeListener { _, isChecked ->
