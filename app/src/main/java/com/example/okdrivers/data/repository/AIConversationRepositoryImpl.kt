@@ -26,4 +26,9 @@ class AIConversationRepositoryImpl @Inject constructor(
     ) {
         dao.insert(session.toEntity())
     }
+    override suspend fun updateSession(
+        session: AIConversationSession
+    ) {
+        dao.update(session.toEntity())
+    }
 }

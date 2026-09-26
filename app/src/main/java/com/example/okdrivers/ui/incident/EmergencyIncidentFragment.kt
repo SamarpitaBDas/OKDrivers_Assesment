@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.example.okdrivers.R
 import com.example.okdrivers.domain.model.AnomalySeverity
 import com.google.android.material.button.MaterialButton
@@ -31,6 +32,7 @@ class EmergencyIncidentFragment : Fragment(R.layout.fragment_emergency_incident)
     private var tvIncidentId: TextView? = null
     private var tvCreatedTime: TextView? = null
     private var tvLocation: TextView? = null
+    private var btnViewAiExchange: MaterialButton? = null
     private var btnCancelEmergency: MaterialButton? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -45,7 +47,12 @@ class EmergencyIncidentFragment : Fragment(R.layout.fragment_emergency_incident)
         tvIncidentId = view.findViewById(R.id.tvIncidentId)
         tvCreatedTime = view.findViewById(R.id.tvCreatedTime)
         tvLocation = view.findViewById(R.id.tvLocation)
+        btnViewAiExchange = view.findViewById(R.id.btnViewAiExchange)
         btnCancelEmergency = view.findViewById(R.id.btnCancelEmergency)
+
+        btnViewAiExchange?.setOnClickListener {
+            findNavController().navigate(R.id.aiVerificationFragment)
+        }
 
         btnCancelEmergency?.setOnClickListener {
             viewModel.selfResolve()

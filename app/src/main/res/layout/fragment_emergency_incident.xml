@@ -203,6 +203,19 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- View Live AI Exchange Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnViewAiExchange"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="20dp"
+            android:text="View Live AI Exchange (TTS -> STT)"
+            android:textAllCaps="false"
+            android:textColor="@color/ok_green_light"
+            app:cornerRadius="8dp"
+            app:strokeColor="@color/ok_green" />
+
         <!-- Self Resolve Action Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCancelEmergency"

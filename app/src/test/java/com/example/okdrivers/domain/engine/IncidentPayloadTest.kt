@@ -41,6 +41,14 @@ class IncidentPayloadTest {
         override suspend fun saveSession(session: AIConversationSession) {
             sessions.add(session)
         }
+        override suspend fun updateSession(session: AIConversationSession) {
+            val idx = sessions.indexOfFirst { it.id == session.id }
+            if (idx >= 0) {
+                sessions[idx] = session
+            } else {
+                sessions.add(session)
+            }
+        }
     }
 
     private class FakeResponderActionRepository : ResponderActionRepository {

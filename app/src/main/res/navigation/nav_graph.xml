@@ -30,4 +30,9 @@
         android:name="com.example.okdrivers.ui.incident.EmergencyIncidentFragment"
         android:label="fragment_emergency_incident"
         tools:layout="@layout/fragment_emergency_incident" />
+    <fragment
+        android:id="@+id/aiVerificationFragment"
+        android:name="com.example.okdrivers.ui.aiverification.AiVerificationFragment"
+        android:label="fragment_ai_verification"
+        tools:layout="@layout/fragment_ai_verification" />
 </navigation>

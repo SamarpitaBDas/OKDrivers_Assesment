@@ -19,7 +19,7 @@ import java.util.Locale
 import javax.inject.Inject
 import kotlin.coroutines.resume
 
-class RealVoiceVerificationService @Inject constructor(
+open class RealVoiceVerificationService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val ttsManager: EmergencyTtsManager,
     @MainDispatcher private val dispatcher: CoroutineDispatcher = Dispatchers.Main

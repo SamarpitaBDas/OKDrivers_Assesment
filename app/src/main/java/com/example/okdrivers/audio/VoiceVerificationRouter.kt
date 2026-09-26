@@ -13,11 +13,25 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class VoiceVerificationRouter @Inject constructor(
+open class VoiceVerificationRouter @Inject constructor(
     @ApplicationContext private val context: Context,
     private val realService: RealVoiceVerificationService,
     private val simulatedService: SimulatedVoiceVerificationService
-) : VoiceVerificationService {
+) : VoiceVerificationService, DemoVoiceResponseController {
+
+    private var forceSimulatedMode: Boolean = false
+
+    override fun setNextSimulatedResponse(transcript: String?) {
+        simulatedService.simulatedResponse = transcript
+    }
+
+    override fun setForceSimulatedMode(enabled: Boolean) {
+        forceSimulatedMode = enabled
+    }
+
+    override fun isForceSimulatedMode(): Boolean {
+        return forceSimulatedMode
+    }
 
     private fun isNetworkAvailable(): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager ?: return false
@@ -30,7 +44,10 @@ class VoiceVerificationRouter @Inject constructor(
         return ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
     }
 
-    fun shouldUseRealService(): Boolean {
+    open fun shouldUseRealService(): Boolean {
+        if (forceSimulatedMode) {
+            return false
+        }
         return hasRecordAudioPermission() &&
                 isNetworkAvailable() &&
                 SpeechRecognizer.isRecognitionAvailable(context)

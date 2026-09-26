@@ -13,4 +13,7 @@ interface AIConversationRepository {
     suspend fun saveSession(
         session: AIConversationSession
     )
+    suspend fun updateSession(
+        session: AIConversationSession
+    )
 }

@@ -39,24 +39,36 @@ class EmergencyVerificationOrchestrator @Inject constructor(
 
         for ((urgency, attemptCount, timeout) in attempts) {
             val startTime = System.currentTimeMillis()
+            val sessionId = UUID.randomUUID().toString()
+            val promptText = voiceVerificationService.getPromptText(urgency)
+
+            // Insert initial in-flight session (Option A: completed = false while speaking/listening)
+            val initialSession = AIConversationSession(
+                id = sessionId,
+                incidentId = incidentId,
+                startedAt = startTime,
+                endedAt = null,
+                prompt = promptText,
+                response = null,
+                responseClassification = null,
+                responseLatencyMs = null,
+                attemptCount = attemptCount,
+                completed = false
+            )
+            aiConversationRepository.saveSession(initialSession)
+
             val result = voiceVerificationService.verifyVoiceResponse(urgency, attemptCount, timeout)
             val endTime = System.currentTimeMillis()
 
-            val promptText = voiceVerificationService.getPromptText(urgency)
-
-            val session = AIConversationSession(
-                id = UUID.randomUUID().toString(),
-                incidentId = incidentId,
-                startedAt = startTime,
+            // Update session row upon completion
+            val completedSession = initialSession.copy(
                 endedAt = endTime,
-                prompt = promptText,
                 response = result.transcribedText,
                 responseClassification = result.classification,
                 responseLatencyMs = result.latencyMs,
-                attemptCount = attemptCount,
-                completed = result.classification == ResponseClassification.RESPONSIVE
+                completed = true
             )
-            aiConversationRepository.saveSession(session)
+            aiConversationRepository.updateSession(completedSession)
 
             if (result.classification == ResponseClassification.RESPONSIVE) {
                 // Short-circuit downgrade to RESOLVED

@@ -78,6 +78,9 @@ class EmergencyOrchestratorCoordinatorTest {
                 sessions.add(session)
             }
         }
+        override suspend fun updateSession(session: AIConversationSession) {
+            saveSession(session)
+        }
     }
 
     private class FakeResponderActionRepository : ResponderActionRepository {

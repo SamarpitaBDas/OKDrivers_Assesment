@@ -7,7 +7,7 @@ import javax.inject.Singleton
 import kotlin.time.Duration.Companion.milliseconds
 
 @Singleton
-class SimulatedVoiceVerificationService @Inject constructor(
+open class SimulatedVoiceVerificationService @Inject constructor(
     private val ttsManager: EmergencyTtsManager
 ) : VoiceVerificationService {
 
