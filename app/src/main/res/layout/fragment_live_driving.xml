@@ -15,16 +15,18 @@
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
         android:orientation="vertical" android:padding="16dp">
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:text="48 km/h                         RPM 1820"
+        <TextView
+            android:id="@+id/tvTelemetryPrimary"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="-- km/h                         RPM ----"
             android:textColor="@android:color/white" android:textSize="18sp"/>
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent" android:layout_height="wrap_content"
             android:layout_marginTop="12dp" app:cardCornerRadius="16dp">
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:padding="18dp" android:text="● Driver State   Attentive
-
-G-Force  0.12 G       Heading  NE (45°)"
+            <TextView
+                android:id="@+id/tvTelemetrySecondary"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:padding="18dp" android:text="G-Force: -- G       Heading: --°\nLocation: Acquiring GPS..."
                 android:textColor="@color/ok_text"/>
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
