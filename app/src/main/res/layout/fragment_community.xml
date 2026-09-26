@@ -86,7 +86,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="12 responders nearby"
+                        android:text="Active safety network monitoring"
                         android:textColor="#E4F5EE"
                         android:textSize="13sp" />
 
@@ -120,241 +120,24 @@
             android:textColor="@color/ok_secondary"
             android:textSize="13sp" />
 
+        <TextView
+            android:id="@+id/tvEmptyResponders"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:padding="24dp"
+            android:text="No active responders or mobilization in progress."
+            android:textColor="@color/ok_secondary"
+            android:textSize="14sp"
+            android:visibility="gone" />
 
-        <!-- ========================= -->
-        <!-- RESPONDER 1 -->
-        <!-- ========================= -->
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardResponderRavi"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvResponders"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            app:cardBackgroundColor="@color/white"
-            app:cardCornerRadius="18dp"
-            app:cardElevation="2dp"
-            app:strokeColor="#E2E8E3"
-            app:strokeWidth="1dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="15dp">
-
-                <!-- Avatar -->
-
-                <TextView
-                    android:layout_width="46dp"
-                    android:layout_height="46dp"
-                    android:background="#DDEDE6"
-                    android:gravity="center"
-                    android:text="RK"
-                    android:textColor="@color/ok_green"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="12dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Ravi Kumar"
-                        android:textColor="@color/ok_text"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="3dp"
-                        android:text="2.4 km  •  3 min ETA"
-                        android:textColor="@color/ok_secondary"
-                        android:textSize="12sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="3dp"
-                        android:text="●  Active  •  Reputation 4.8"
-                        android:textColor="@color/ok_green"
-                        android:textSize="12sp" />
-
-                </LinearLayout>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnRaviView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="42dp"
-                    android:text="View"
-                    android:textAllCaps="false"
-                    android:textSize="12sp"
-                    app:cornerRadius="21dp" />
-
-            </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
-
-
-        <!-- ========================= -->
-        <!-- RESPONDER 2 -->
-        <!-- ========================= -->
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardResponderNeha"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            app:cardBackgroundColor="@color/white"
-            app:cardCornerRadius="18dp"
-            app:cardElevation="2dp"
-            app:strokeColor="#E2E8E3"
-            app:strokeWidth="1dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="15dp">
-
-                <TextView
-                    android:layout_width="46dp"
-                    android:layout_height="46dp"
-                    android:background="#DDEDE6"
-                    android:gravity="center"
-                    android:text="NS"
-                    android:textColor="@color/ok_green"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="12dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Neha Singh"
-                        android:textColor="@color/ok_text"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="3dp"
-                        android:text="4.7 km  •  6 min ETA"
-                        android:textColor="@color/ok_secondary"
-                        android:textSize="12sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="3dp"
-                        android:text="●  Active  •  Reputation 4.5"
-                        android:textColor="@color/ok_green"
-                        android:textSize="12sp" />
-
-                </LinearLayout>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnNehaView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="42dp"
-                    android:text="View"
-                    android:textAllCaps="false"
-                    android:textSize="12sp"
-                    app:cornerRadius="21dp" />
-
-            </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
-
-
-        <!-- ========================= -->
-        <!-- RESPONDER 3 -->
-        <!-- ========================= -->
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardResponderArjun"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            app:cardBackgroundColor="@color/white"
-            app:cardCornerRadius="18dp"
-            app:cardElevation="2dp"
-            app:strokeColor="#E2E8E3"
-            app:strokeWidth="1dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="15dp">
-
-                <TextView
-                    android:layout_width="46dp"
-                    android:layout_height="46dp"
-                    android:background="#DDEDE6"
-                    android:gravity="center"
-                    android:text="AM"
-                    android:textColor="@color/ok_green"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="12dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Arjun Mehta"
-                        android:textColor="@color/ok_text"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="3dp"
-                        android:text="6.2 km  •  9 min ETA"
-                        android:textColor="@color/ok_secondary"
-                        android:textSize="12sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="3dp"
-                        android:text="●  Active  •  Reputation 4.2"
-                        android:textColor="@color/ok_green"
-                        android:textSize="12sp" />
-
-                </LinearLayout>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnArjunView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="42dp"
-                    android:text="View"
-                    android:textAllCaps="false"
-                    android:textSize="12sp"
-                    app:cornerRadius="21dp" />
-
-            </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
+            android:nestedScrollingEnabled="false" />
 
 
         <!-- ========================= -->
@@ -405,15 +188,6 @@
                     android:text="Nearby responders can be notified when an emergency requires community assistance."
                     android:textColor="@color/ok_secondary"
                     android:textSize="13sp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnViewAllResponders"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="16dp"
-                    android:text="View All Responders"
-                    android:textAllCaps="false"
-                    app:cornerRadius="25dp" />
 
             </LinearLayout>
 
