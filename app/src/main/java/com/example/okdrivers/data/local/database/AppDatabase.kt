@@ -13,6 +13,7 @@ import com.example.okdrivers.data.local.dao.ResponderActionDao
 import com.example.okdrivers.data.local.dao.ResponderDao
 import com.example.okdrivers.data.local.dao.SafetyBaselineDao
 import com.example.okdrivers.data.local.dao.SensorSampleDao
+import com.example.okdrivers.data.local.dao.SyncQueueDao
 import com.example.okdrivers.data.local.dao.VehicleProfileDao
 import com.example.okdrivers.data.local.dao.VehicleTelemetryDao
 import com.example.okdrivers.data.local.entity.AnomalyEventEntity
@@ -26,6 +27,7 @@ import com.example.okdrivers.data.local.entity.ResponderActionEntity
 import com.example.okdrivers.data.local.entity.ResponderEntity
 import com.example.okdrivers.data.local.entity.SafetyBaselineEntity
 import com.example.okdrivers.data.local.entity.SensorSampleEntity
+import com.example.okdrivers.data.local.entity.SyncQueueEntity
 import com.example.okdrivers.data.local.entity.VehicleProfileEntity
 import com.example.okdrivers.data.local.entity.VehicleTelemetryEntity
 
@@ -43,9 +45,10 @@ import com.example.okdrivers.data.local.entity.VehicleTelemetryEntity
         AIConversationSessionEntity::class,
         ResponderEntity::class,
         ResponderActionEntity::class,
-        NotificationEventEntity::class
+        NotificationEventEntity::class,
+        SyncQueueEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -62,4 +65,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun responderDao(): ResponderDao
     abstract fun responderActionDao(): ResponderActionDao
     abstract fun notificationEventDao(): NotificationEventDao
+    abstract fun syncQueueDao(): SyncQueueDao
 }

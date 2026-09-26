@@ -49,6 +49,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
 
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.11.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.11.0")
@@ -58,6 +59,9 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.60.1")
     ksp("com.google.dagger:hilt-compiler:2.60.1")
     implementation("androidx.work:work-runtime-ktx:2.12.0")
+    androidTestImplementation("androidx.work:work-testing:2.12.0")
+    implementation("androidx.hilt:hilt-work:1.2.0")
+    ksp("androidx.hilt:hilt-compiler:1.2.0")
     implementation("com.google.code.gson:gson:2.14.0")
     implementation("com.google.android.gms:play-services-location:21.3.0")
 

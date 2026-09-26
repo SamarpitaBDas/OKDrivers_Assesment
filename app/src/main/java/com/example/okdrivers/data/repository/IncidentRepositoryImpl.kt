@@ -7,7 +7,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class IncidentRepositoryImpl @Inject constructor(
-    private val dao: IncidentDao
+    private val dao: IncidentDao,
+    private val syncQueueRepository: SyncQueueRepository
 ) : IncidentRepository {
     override fun observeIncidents(): Flow<List<Incident>> {
         return dao.observeAll().map { list ->
@@ -23,5 +24,6 @@ class IncidentRepositoryImpl @Inject constructor(
         incident: Incident
     ) {
         dao.insert(incident.toEntity())
+        syncQueueRepository.enqueue("INCIDENT", incident.id)
     }
 }

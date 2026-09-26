@@ -7,7 +7,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class IncidentTimelineRepositoryImpl @Inject constructor(
-    private val dao: IncidentStateTransitionDao
+    private val dao: IncidentStateTransitionDao,
+    private val syncQueueRepository: SyncQueueRepository
 ) : IncidentTimelineRepository {
 
     override fun observeTimeline(
@@ -22,5 +23,6 @@ class IncidentTimelineRepositoryImpl @Inject constructor(
         transition: IncidentStateTransition
     ) {
         dao.insert(transition.toEntity())
+        syncQueueRepository.enqueue("TRANSITION", transition.id)
     }
 }

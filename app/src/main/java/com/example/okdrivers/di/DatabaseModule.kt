@@ -23,6 +23,7 @@ object DatabaseModule {
             AppDatabase::class.java,
             "okdriver_database"
         )
+            .fallbackToDestructiveMigration()
             .build()
     }
     @Provides
@@ -64,4 +65,7 @@ object DatabaseModule {
     @Provides
     fun provideNotificationEventDao(database: AppDatabase) =
         database.notificationEventDao()
+    @Provides
+    fun provideSyncQueueDao(database: AppDatabase) =
+        database.syncQueueDao()
 }

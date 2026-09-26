@@ -446,29 +446,19 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun updateNetworkStatus() {
-
-        val connectivityManager =
-            requireContext().getSystemService(
-                Context.CONNECTIVITY_SERVICE
-            ) as ConnectivityManager
-
-        val network =
-            connectivityManager.activeNetwork
-
-        val capabilities =
-            connectivityManager.getNetworkCapabilities(
-                network
-            )
-
-        val connected =
-            capabilities?.hasCapability(
-                NetworkCapabilities.NET_CAPABILITY_INTERNET
-            ) == true
-
-        if (connected) {
-            tvNetwork.text = "Online"
-        } else {
-            tvNetwork.text = "Offline"
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(
+                Lifecycle.State.STARTED
+            ) {
+                networkStatusManager.observeNetwork()
+                    .collect { status ->
+                        if (status.isOnline) {
+                            tvNetwork.text = "Online"
+                        } else {
+                            tvNetwork.text = "Offline"
+                        }
+                    }
+            }
         }
     }
 

@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".OkDriverApplication"
@@ -19,6 +20,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.OKDrivers">
+
+        <service
+            android:name=".service.SafetyMonitoringService"
+            android:exported="false"
+            android:foregroundServiceType="location|dataSync" />
 
         <activity
             android:name=".SplashActivity"
