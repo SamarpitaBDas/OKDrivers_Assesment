@@ -11,11 +11,11 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
-class BatteryStatusManager @Inject constructor(
+open class BatteryStatusManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
 
-    fun observeBattery(): Flow<BatteryStatusSample> = callbackFlow {
+    open fun observeBattery(): Flow<BatteryStatusSample> = callbackFlow {
 
         val batteryReceiver = object : BroadcastReceiver() {
 

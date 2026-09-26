@@ -24,6 +24,8 @@ import com.example.okdrivers.data.repository.ResponderRepository
 import com.example.okdrivers.data.repository.ResponderRepositoryImpl
 import com.example.okdrivers.data.repository.SensorRepository
 import com.example.okdrivers.data.repository.SensorRepositoryImpl
+import com.example.okdrivers.data.repository.ServiceStateRepository
+import com.example.okdrivers.data.repository.ServiceStateRepositoryImpl
 import com.example.okdrivers.data.repository.TelemetryRepository
 import com.example.okdrivers.data.repository.TelemetryRepositoryImpl
 import com.example.okdrivers.data.repository.VehicleRepository
@@ -121,4 +123,10 @@ abstract class RepositoryModule {
     abstract fun bindCurrentProfileRepository(
         implementation: CurrentProfileRepositoryImpl
     ): CurrentProfileRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindServiceStateRepository(
+        implementation: ServiceStateRepositoryImpl
+    ): ServiceStateRepository
 }

@@ -12,16 +12,17 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
-class NetworkStatusManager @Inject constructor(
+open class NetworkStatusManager @Inject constructor(
     @ApplicationContext context: Context
 ) {
 
-    private val connectivityManager =
+    private val connectivityManager by lazy {
         context.getSystemService(
             Context.CONNECTIVITY_SERVICE
         ) as ConnectivityManager
+    }
 
-    fun observeNetwork(): Flow<NetworkStatusSample> =
+    open fun observeNetwork(): Flow<NetworkStatusSample> =
         callbackFlow {
 
             fun emitCurrentStatus() {

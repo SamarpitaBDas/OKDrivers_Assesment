@@ -14,10 +14,12 @@ import com.example.okdrivers.MainActivity
 import com.example.okdrivers.R
 import com.example.okdrivers.data.repository.CurrentProfileRepository
 import com.example.okdrivers.data.repository.SamplingRateRepository
+import com.example.okdrivers.data.repository.ServiceStateRepository
 import com.example.okdrivers.domain.engine.AnomalyManager
 import com.example.okdrivers.domain.engine.BaselineManager
 import com.example.okdrivers.domain.engine.EmergencyOrchestratorCoordinator
 import com.example.okdrivers.domain.engine.IncidentStateMachine
+import com.example.okdrivers.domain.engine.LiveAnomalyStatusHolder
 import com.example.okdrivers.domain.model.EmergencyState
 import com.example.okdrivers.domain.model.SensorSample
 import com.example.okdrivers.sensors.GpsLocationManager
@@ -62,6 +64,12 @@ class SafetyMonitoringService : Service() {
 
     @Inject
     lateinit var incidentStateMachine: IncidentStateMachine
+
+    @Inject
+    lateinit var liveAnomalyStatusHolder: LiveAnomalyStatusHolder
+
+    @Inject
+    lateinit var serviceStateRepository: ServiceStateRepository
 
     private val serviceScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
@@ -143,7 +151,7 @@ class SafetyMonitoringService : Service() {
                         val activeBaselineStats = updateResult.baseline
 
                         // Delegate to domain manager
-                        anomalyManager.evaluateAndPersist(
+                        val result = anomalyManager.evaluateAndPersist(
                             driverId = driverId,
                             vehicleId = vehicleId,
                             vehicleTelemetry = null,
@@ -153,6 +161,7 @@ class SafetyMonitoringService : Service() {
                             driverBaseline = activeBaselineStats,
                             vehicleBaseline = activeBaselineStats
                         )
+                        liveAnomalyStatusHolder.updateConfidence(result.overallConfidence)
                     }
                 }
             }
@@ -161,6 +170,9 @@ class SafetyMonitoringService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        serviceScope.launch {
+            serviceStateRepository.setServiceRunning(false)
+        }
         serviceScope.cancel()
     }
 
