@@ -8,7 +8,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.example.okdrivers.R
+import com.google.android.material.button.MaterialButton
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -19,10 +21,16 @@ class DriverStateFragment : Fragment(R.layout.fragment_driver_state) {
 
     private val viewModel: DriverStateViewModel by viewModels()
     private var tvDriverStateContent: TextView? = null
+    private var btnBack: MaterialButton? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         tvDriverStateContent = view.findViewById(R.id.tvDriverStateContent)
+        btnBack = view.findViewById(R.id.btnBack)
+
+        btnBack?.setOnClickListener {
+            findNavController().navigateUp()
+        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {

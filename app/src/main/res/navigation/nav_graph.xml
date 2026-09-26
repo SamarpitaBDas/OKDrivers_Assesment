@@ -55,4 +55,9 @@
         android:name="com.example.okdrivers.ui.testcontrols.TestControlsFragment"
         android:label="fragment_test_controls"
         tools:layout="@layout/fragment_test_controls" />
+    <fragment
+        android:id="@+id/driverStateFragment"
+        android:name="com.example.okdrivers.ui.DriverStateFragment"
+        android:label="fragment_driver_state"
+        tools:layout="@layout/fragment_driver_state" />
 </navigation>

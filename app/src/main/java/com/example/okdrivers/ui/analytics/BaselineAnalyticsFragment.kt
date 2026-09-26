@@ -9,7 +9,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.example.okdrivers.R
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -21,6 +23,7 @@ class BaselineAnalyticsFragment : Fragment(R.layout.fragment_baseline_analytics)
 
     private val viewModel: BaselineAnalyticsViewModel by viewModels()
 
+    private var btnBack: MaterialButton? = null
     private var pbConfidence: LinearProgressIndicator? = null
     private var tvConfidencePercentage: TextView? = null
     private var tvSampleCount: TextView? = null
@@ -38,6 +41,7 @@ class BaselineAnalyticsFragment : Fragment(R.layout.fragment_baseline_analytics)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        btnBack = view.findViewById(R.id.btnBack)
         pbConfidence = view.findViewById(R.id.pbConfidence)
         tvConfidencePercentage = view.findViewById(R.id.tvConfidencePercentage)
         tvSampleCount = view.findViewById(R.id.tvSampleCount)
@@ -51,6 +55,10 @@ class BaselineAnalyticsFragment : Fragment(R.layout.fragment_baseline_analytics)
         tvAverageBrakingG = view.findViewById(R.id.tvAverageBrakingG)
         tvMaxNormalG = view.findViewById(R.id.tvMaxNormalG)
         tvLastUpdated = view.findViewById(R.id.tvLastUpdated)
+
+        btnBack?.setOnClickListener {
+            findNavController().navigateUp()
+        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {

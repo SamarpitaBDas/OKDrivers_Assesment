@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.okdrivers.R
@@ -25,6 +26,7 @@ class AiVerificationFragment : Fragment(R.layout.fragment_ai_verification) {
 
     private val viewModel: AiVerificationViewModel by viewModels()
 
+    private var btnBack: MaterialButton? = null
     private var tvOverallStatus: TextView? = null
     private var tvUrgencyBadge: TextView? = null
     private var tvAttemptBadge: TextView? = null
@@ -44,6 +46,7 @@ class AiVerificationFragment : Fragment(R.layout.fragment_ai_verification) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        btnBack = view.findViewById(R.id.btnBack)
         tvOverallStatus = view.findViewById(R.id.tvOverallStatus)
         tvUrgencyBadge = view.findViewById(R.id.tvUrgencyBadge)
         tvAttemptBadge = view.findViewById(R.id.tvAttemptBadge)
@@ -74,6 +77,10 @@ class AiVerificationFragment : Fragment(R.layout.fragment_ai_verification) {
     }
 
     private fun setupClickListeners() {
+        btnBack?.setOnClickListener {
+            findNavController().navigateUp()
+        }
+
         swForceSimulatedMode?.setOnCheckedChangeListener { _, isChecked ->
             viewModel.toggleForceSimulatedMode(isChecked)
             Toast.makeText(

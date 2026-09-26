@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.example.okdrivers.R
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
@@ -27,6 +28,7 @@ class DriverProfileFragment : Fragment(R.layout.fragment_driver_profile) {
     private var tvMemberSince: TextView? = null
     private var etEmergencyName: TextInputEditText? = null
     private var etEmergencyPhone: TextInputEditText? = null
+    private var btnBack: MaterialButton? = null
     private var btnEdit: MaterialButton? = null
     private var btnSave: MaterialButton? = null
 
@@ -35,6 +37,7 @@ class DriverProfileFragment : Fragment(R.layout.fragment_driver_profile) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        btnBack = view.findViewById(R.id.btnBack)
         etName = view.findViewById(R.id.etName)
         etPhone = view.findViewById(R.id.etPhone)
         tvMemberSince = view.findViewById(R.id.tvMemberSince)
@@ -42,6 +45,10 @@ class DriverProfileFragment : Fragment(R.layout.fragment_driver_profile) {
         etEmergencyPhone = view.findViewById(R.id.etEmergencyPhone)
         btnEdit = view.findViewById(R.id.btnEdit)
         btnSave = view.findViewById(R.id.btnSave)
+
+        btnBack?.setOnClickListener {
+            findNavController().navigateUp()
+        }
 
         setupClickListeners()
 

@@ -23,6 +23,7 @@ class EmergencyIncidentFragment : Fragment(R.layout.fragment_emergency_incident)
 
     private val viewModel: EmergencyIncidentViewModel by viewModels()
 
+    private var btnBack: MaterialButton? = null
     private var tvEmergencyState: TextView? = null
     private var tvSeverityBadge: TextView? = null
     private var tvContextualStatusLine: TextView? = null
@@ -38,6 +39,7 @@ class EmergencyIncidentFragment : Fragment(R.layout.fragment_emergency_incident)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        btnBack = view.findViewById(R.id.btnBack)
         tvEmergencyState = view.findViewById(R.id.tvEmergencyState)
         tvSeverityBadge = view.findViewById(R.id.tvSeverityBadge)
         tvContextualStatusLine = view.findViewById(R.id.tvContextualStatusLine)
@@ -49,6 +51,10 @@ class EmergencyIncidentFragment : Fragment(R.layout.fragment_emergency_incident)
         tvLocation = view.findViewById(R.id.tvLocation)
         btnViewAiExchange = view.findViewById(R.id.btnViewAiExchange)
         btnCancelEmergency = view.findViewById(R.id.btnCancelEmergency)
+
+        btnBack?.setOnClickListener {
+            findNavController().navigateUp()
+        }
 
         btnViewAiExchange?.setOnClickListener {
             findNavController().navigate(R.id.aiVerificationFragment)

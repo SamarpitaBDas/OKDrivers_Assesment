@@ -150,7 +150,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
 
         cardDriverState.setOnClickListener {
-            Toast.makeText(requireContext(), "Driver State clicked", Toast.LENGTH_SHORT).show()
+            findNavController().navigate(R.id.driverStateFragment)
         }
 
         cardVehicleHealth.setOnClickListener {

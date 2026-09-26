@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.example.okdrivers.R
 import com.example.okdrivers.domain.model.EmergencyState
 import com.google.android.material.button.MaterialButton
@@ -22,6 +23,7 @@ class TestControlsFragment : Fragment(R.layout.fragment_test_controls) {
 
     private val viewModel: TestControlsViewModel by viewModels()
 
+    private var btnBack: MaterialButton? = null
     private var tvActiveScenarioName: TextView? = null
     private var tvEmergencyStateBadge: TextView? = null
     private var tvActiveIncidentId: TextView? = null
@@ -39,6 +41,7 @@ class TestControlsFragment : Fragment(R.layout.fragment_test_controls) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        btnBack = view.findViewById(R.id.btnBack)
         tvActiveScenarioName = view.findViewById(R.id.tvActiveScenarioName)
         tvEmergencyStateBadge = view.findViewById(R.id.tvEmergencyStateBadge)
         tvActiveIncidentId = view.findViewById(R.id.tvActiveIncidentId)
@@ -65,6 +68,10 @@ class TestControlsFragment : Fragment(R.layout.fragment_test_controls) {
     }
 
     private fun setupClickListeners() {
+        btnBack?.setOnClickListener {
+            findNavController().navigateUp()
+        }
+
         btnNormalDriving?.setOnClickListener {
             viewModel.triggerNormalDriving()
             Toast.makeText(requireContext(), "Triggered: 1. Normal Driving", Toast.LENGTH_SHORT).show()
