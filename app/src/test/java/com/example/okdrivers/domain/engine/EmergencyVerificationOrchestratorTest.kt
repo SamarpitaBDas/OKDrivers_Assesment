@@ -38,6 +38,14 @@ class EmergencyVerificationOrchestratorTest {
                 attemptCount = attemptCount
             )
         }
+
+        override fun getPromptText(urgency: UrgencyLevel): String {
+            return when (urgency) {
+                UrgencyLevel.INITIAL -> "Emergency detected. Are you okay? Please respond."
+                UrgencyLevel.URGENT -> "We still haven't heard from you. Please respond now."
+                UrgencyLevel.FINAL -> "No response detected. Emergency services will be notified."
+            }
+        }
     }
 
     private class FakeAIConversationRepository : AIConversationRepository {

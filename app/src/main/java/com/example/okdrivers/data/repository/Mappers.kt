@@ -365,7 +365,7 @@ fun AIConversationSessionEntity.toDomain() = AIConversationSession(
     responseClassification = responseClassification?.let {
         runCatching {
             ResponseClassification.valueOf(it)
-        }.getOrDefault(ResponseClassification.UNKNOWN)
+        }.getOrDefault(ResponseClassification.UNRESPONSIVE)
     },
     responseLatencyMs = responseLatencyMs,
     attemptCount = attemptCount,

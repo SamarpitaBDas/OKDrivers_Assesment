@@ -16,4 +16,6 @@ interface VoiceVerificationService {
         attemptCount: Int,
         timeoutMillis: Long
     ): VoiceVerificationResult
+
+    fun getPromptText(urgency: UrgencyLevel): String
 }

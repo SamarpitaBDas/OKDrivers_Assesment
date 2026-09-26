@@ -42,11 +42,7 @@ class EmergencyVerificationOrchestrator @Inject constructor(
             val result = voiceVerificationService.verifyVoiceResponse(urgency, attemptCount, timeout)
             val endTime = System.currentTimeMillis()
 
-            val promptText = when (urgency) {
-                UrgencyLevel.INITIAL -> "Emergency detected. Are you okay? Please respond."
-                UrgencyLevel.URGENT -> "We still haven't heard from you. Please respond now."
-                UrgencyLevel.FINAL -> "No response detected. Emergency services will be notified."
-            }
+            val promptText = voiceVerificationService.getPromptText(urgency)
 
             val session = AIConversationSession(
                 id = UUID.randomUUID().toString(),

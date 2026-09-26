@@ -36,6 +36,15 @@ class VoiceVerificationRouter @Inject constructor(
                 SpeechRecognizer.isRecognitionAvailable(context)
     }
 
+    override fun getPromptText(urgency: UrgencyLevel): String {
+        val service = if (shouldUseRealService()) {
+            realService
+        } else {
+            simulatedService
+        }
+        return service.getPromptText(urgency)
+    }
+
     override suspend fun verifyVoiceResponse(
         urgency: UrgencyLevel,
         attemptCount: Int,

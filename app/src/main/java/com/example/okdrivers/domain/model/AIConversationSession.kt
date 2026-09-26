@@ -16,7 +16,5 @@ data class AIConversationSession(
 enum class ResponseClassification {
     RESPONSIVE,
     IMPAIRED,
-    UNRESPONSIVE,
-    NO_RESPONSE,
-    UNKNOWN
+    UNRESPONSIVE
 }
