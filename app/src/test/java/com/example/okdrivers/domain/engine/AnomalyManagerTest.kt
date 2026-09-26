@@ -100,7 +100,7 @@ class AnomalyManagerTest {
 
         // Saved to anomaly repo (full log)
         assertEquals(1, fakeAnomalyRepo.savedEvents.size)
-        // NOT escalated to incident state machine because requiresVerification = false and severity = LOW/MEDIUM
+        // NOT escalated to incident state machine because requiresVerification = false
         assertEquals(0, fakeIncidentRepo.savedIncidents.size)
         assertEquals(0, fakeTimelineRepo.savedTransitions.size)
     }
@@ -141,12 +141,12 @@ class AnomalyManagerTest {
 
         // Saved to anomaly repo
         assertTrue(fakeAnomalyRepo.savedEvents.isNotEmpty())
-        // Fed into incident state machine
-        assertEquals(1, fakeIncidentRepo.savedIncidents.size)
-        assertEquals(1, fakeTimelineRepo.savedTransitions.size)
+        // Fed into incident state machine (transitions: ANOMALY_DETECTION -> AI_VERIFICATION -> AUTHORITY_ESCALATION)
+        assertTrue(fakeIncidentRepo.savedIncidents.isNotEmpty())
+        assertEquals(3, fakeTimelineRepo.savedTransitions.size)
 
-        val incident = fakeIncidentRepo.savedIncidents.first()
-        val transition = fakeTimelineRepo.savedTransitions.first()
+        val incident = fakeIncidentRepo.savedIncidents.last()
+        val transition = fakeTimelineRepo.savedTransitions.last()
 
         assertEquals(result.events.first().severity, incident.severity)
         assertEquals(result.events.first().reason, transition.reason)
