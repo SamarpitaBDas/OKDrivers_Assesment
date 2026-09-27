@@ -195,7 +195,9 @@ class SafetyMonitoringService : Service() {
                             driverBaseline = driverBaseline,
                             vehicleBaseline = vehicleBaseline
                         )
-                        liveAnomalyStatusHolder.updateConfidence(result.overallConfidence)
+                        val activeIncident = incidentStateMachine.getActiveIncident()
+                        val currentConf = maxOf(result.overallConfidence, activeIncident?.anomalyConfidence ?: 0f)
+                        liveAnomalyStatusHolder.updateConfidence(currentConf)
                     }
                 }
             }

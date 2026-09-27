@@ -6,6 +6,7 @@ import com.example.okdrivers.audio.DemoVoiceResponseController
 import com.example.okdrivers.data.repository.IncidentRepository
 import com.example.okdrivers.data.repository.ResponderActionRepository
 import com.example.okdrivers.domain.engine.IncidentStateMachine
+import com.example.okdrivers.domain.engine.LiveAnomalyStatusHolder
 import com.example.okdrivers.domain.model.ResponderAction
 import com.example.okdrivers.domain.model.ResponderActionType
 import com.example.okdrivers.sensors.DmsSimulator
@@ -29,7 +30,8 @@ class TestControlsViewModel @Inject constructor(
     private val demoController: DemoVoiceResponseController,
     private val responderActionRepository: ResponderActionRepository,
     private val incidentStateMachine: IncidentStateMachine,
-    private val incidentRepository: IncidentRepository
+    private val incidentRepository: IncidentRepository,
+    private val liveAnomalyStatusHolder: LiveAnomalyStatusHolder
 ) : ViewModel() {
 
     private val activeScenarioNameFlow = MutableStateFlow("Normal Driving")
@@ -59,6 +61,7 @@ class TestControlsViewModel @Inject constructor(
         vehicleTelemetrySimulator.clearAnomaly()
         dmsSimulator.clearAnomaly()
         motionSensorManager.clearSimulatedGForce()
+        liveAnomalyStatusHolder.updateConfidence(0f)
         viewModelScope.launch {
             incidentStateMachine.forceResetToNormal()
         }
@@ -69,14 +72,16 @@ class TestControlsViewModel @Inject constructor(
     fun triggerHardBraking() {
         vehicleTelemetrySimulator.injectAnomaly(VehicleTelemetrySimulator.AnomalyType.HARD_BRAKING)
         motionSensorManager.injectSimulatedGForce(0.85f)
+        liveAnomalyStatusHolder.updateConfidence(0.65f)
         activeScenarioNameFlow.value = "2. 0.8G Hard Brake"
-        statusMessageFlow.value = "Scenario 2: 0.8G Hard Brake injected (verify no escalation)"
+        statusMessageFlow.value = "Scenario 2: 0.8G Hard Brake injected (65% confidence, no escalation)"
     }
 
     fun triggerSuspectedAccident() {
         vehicleTelemetrySimulator.injectAnomaly(VehicleTelemetrySimulator.AnomalyType.ENGINE_STOP)
         motionSensorManager.injectSimulatedGForce(2.2f)
         dmsSimulator.injectAnomaly(DmsSimulator.AnomalyType.UNRESPONSIVE)
+        liveAnomalyStatusHolder.updateConfidence(0.92f)
         activeScenarioNameFlow.value = "3. Suspected Accident"
         statusMessageFlow.value = "Scenario 3: Suspected Accident injected (speed drop + RPM 0 + unresponsive DMS)"
     }
@@ -121,6 +126,7 @@ class TestControlsViewModel @Inject constructor(
     fun triggerAirbagEvent() {
         vehicleTelemetrySimulator.injectAnomaly(VehicleTelemetrySimulator.AnomalyType.AIRBAG_DEPLOYED)
         motionSensorManager.injectSimulatedGForce(3.5f)
+        liveAnomalyStatusHolder.updateConfidence(0.99f)
         activeScenarioNameFlow.value = "8. Critical / Airbag Event"
         statusMessageFlow.value = "Scenario 8: Critical Airbag Event injected — immediate escalation"
     }

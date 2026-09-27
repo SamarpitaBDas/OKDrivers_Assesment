@@ -74,13 +74,13 @@ class VehicleTelemetrySimulator @Inject constructor() {
             when (activeAnomaly) {
 
                 AnomalyType.HARD_BRAKING -> {
-                    speed = (speed - 35f).coerceAtLeast(0f)
+                    speed = 25f
                     throttle = 0f
                     engineLoad = 10f
                 }
 
                 AnomalyType.ENGINE_STOP -> {
-                    speed = (speed - 5f).coerceAtLeast(0f)
+                    speed = 35f
                     rpm = 0f
                     throttle = 0f
                     engineLoad = 0f

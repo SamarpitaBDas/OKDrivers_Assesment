@@ -5,6 +5,7 @@ import com.example.okdrivers.data.repository.IncidentRepository
 import com.example.okdrivers.data.repository.IncidentTimelineRepository
 import com.example.okdrivers.data.repository.ResponderActionRepository
 import com.example.okdrivers.domain.engine.IncidentStateMachine
+import com.example.okdrivers.domain.engine.LiveAnomalyStatusHolder
 import com.example.okdrivers.domain.model.EmergencyState
 import com.example.okdrivers.domain.model.Incident
 import com.example.okdrivers.domain.model.IncidentStateTransition
@@ -100,6 +101,7 @@ class TestControlsViewModelTest {
         val incidentRepo = FakeIncidentRepository()
         val timelineRepo = FakeTimelineRepository()
         val stateMachine = IncidentStateMachine(incidentRepo, timelineRepo)
+        val statusHolder = LiveAnomalyStatusHolder()
 
         val viewModel = TestControlsViewModel(
             motionSensorManager,
@@ -108,7 +110,8 @@ class TestControlsViewModelTest {
             demoController,
             responderActionRepo,
             stateMachine,
-            incidentRepo
+            incidentRepo,
+            statusHolder
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -118,11 +121,13 @@ class TestControlsViewModelTest {
         viewModel.triggerHardBraking()
         testScheduler.advanceUntilIdle()
         assertTrue(viewModel.uiState.value.activeScenarioName.contains("Hard Brake"))
+        assertEquals(0.65f, statusHolder.currentConfidence.value, 0.01f)
 
         // 2. Suspected accident trigger
         viewModel.triggerSuspectedAccident()
         testScheduler.advanceUntilIdle()
         assertTrue(viewModel.uiState.value.activeScenarioName.contains("Suspected Accident"))
+        assertEquals(0.92f, statusHolder.currentConfidence.value, 0.01f)
 
         // 3. Driver responds trigger
         viewModel.triggerDriverResponds()
@@ -144,10 +149,12 @@ class TestControlsViewModelTest {
         viewModel.triggerAirbagEvent()
         testScheduler.advanceUntilIdle()
         assertTrue(viewModel.uiState.value.activeScenarioName.contains("Airbag"))
+        assertEquals(0.99f, statusHolder.currentConfidence.value, 0.01f)
 
         // 7. Normal driving reset
         viewModel.triggerNormalDriving()
         testScheduler.advanceUntilIdle()
         assertEquals(EmergencyState.NORMAL_OPERATION, viewModel.uiState.value.currentEmergencyState)
+        assertEquals(0f, statusHolder.currentConfidence.value, 0.01f)
     }
 }
