@@ -1,8 +1,18 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.OKDrivers" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Brand Colors -->
+        <item name="colorPrimary">@color/ok_green</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">#E2F3EC</item>
+        <item name="colorOnPrimaryContainer">@color/ok_green_dark</item>
+        <item name="colorSecondary">@color/ok_green</item>
+        <item name="colorOnSecondary">@color/white</item>
+
+        <!-- System Bar Colors -->
+        <item name="android:statusBarColor">@color/ok_green_dark</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">#FFFFFF</item>
     </style>
 
     <style name="Theme.OKDrivers" parent="Base.Theme.OKDrivers" />

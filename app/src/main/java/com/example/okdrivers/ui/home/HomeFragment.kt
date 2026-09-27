@@ -38,6 +38,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private lateinit var cardVehicleHealth: LinearLayout
     private lateinit var cardLocation: LinearLayout
     private lateinit var cardNetwork: LinearLayout
+    private lateinit var cardLiveDriving: LinearLayout
+    private lateinit var cardSensorData: LinearLayout
+    private lateinit var cardBaselines: LinearLayout
+    private lateinit var cardIncidentHistory: LinearLayout
 
     private lateinit var tvDriverState: TextView
     private lateinit var tvVehicleHealth: TextView
@@ -79,6 +83,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         cardVehicleHealth = view.findViewById(R.id.cardVehicleHealth)
         cardLocation = view.findViewById(R.id.cardLocation)
         cardNetwork = view.findViewById(R.id.cardNetwork)
+        cardLiveDriving = view.findViewById(R.id.cardLiveDriving)
+        cardSensorData = view.findViewById(R.id.cardSensorData)
+        cardBaselines = view.findViewById(R.id.cardBaselines)
+        cardIncidentHistory = view.findViewById(R.id.cardIncidentHistory)
 
         tvSystemStatusTitle = view.findViewById(R.id.tvSystemStatusTitle)
         tvSystemStatusSubtitle = view.findViewById(R.id.tvSystemStatusSubtitle)
@@ -177,6 +185,22 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         cardNetwork.setOnClickListener {
             Toast.makeText(requireContext(), "Network status monitored automatically (${if (viewModel.uiState.value.isOnline) "Online" else "Offline"})", Toast.LENGTH_SHORT).show()
+        }
+
+        cardLiveDriving.setOnClickListener {
+            findNavController().navigate(R.id.liveDrivingFragment)
+        }
+
+        cardSensorData.setOnClickListener {
+            findNavController().navigate(R.id.sensorDataFragment)
+        }
+
+        cardBaselines.setOnClickListener {
+            findNavController().navigate(R.id.baselineAnalyticsFragment)
+        }
+
+        cardIncidentHistory.setOnClickListener {
+            findNavController().navigate(R.id.logsFragment)
         }
     }
 
