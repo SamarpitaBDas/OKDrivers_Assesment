@@ -1,8 +1,4 @@
-# okDriver — Android Vehicle Safety Platform (Prototype)
-
-A Kotlin/Android prototype implementing sensor fusion, context-aware anomaly detection, an
-explicit emergency state machine, conversational AI driver verification, and a community-first
-emergency response workflow — per the okDriver hiring assignment brief.
+# okDriver — Android Vehicle Safety Platform
 
 ## 1. Setup & Build
 
