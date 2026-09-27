@@ -2,16 +2,23 @@ package com.example.okdrivers.ui.home
 
 import com.example.okdrivers.data.repository.IncidentRepository
 import com.example.okdrivers.data.repository.IncidentTimelineRepository
+import com.example.okdrivers.data.repository.SensorRepository
 import com.example.okdrivers.data.repository.ServiceStateRepository
+import com.example.okdrivers.domain.engine.DriverStateEngine
 import com.example.okdrivers.domain.engine.IncidentStateMachine
 import com.example.okdrivers.domain.engine.LiveAnomalyStatusHolder
+import com.example.okdrivers.domain.model.DriverCondition
+import com.example.okdrivers.domain.model.DriverState
 import com.example.okdrivers.domain.model.EmergencyState
 import com.example.okdrivers.domain.model.Incident
 import com.example.okdrivers.domain.model.IncidentStateTransition
-import com.example.okdrivers.sensors.BatteryStatusManager
 import com.example.okdrivers.sensors.BatteryStatusSample
-import com.example.okdrivers.sensors.NetworkStatusManager
+import com.example.okdrivers.sensors.DmsSample
+import com.example.okdrivers.sensors.GpsLocationSample
+import com.example.okdrivers.sensors.MotionSensorSample
 import com.example.okdrivers.sensors.NetworkStatusSample
+import com.example.okdrivers.sensors.SensorSnapshot
+import com.example.okdrivers.sensors.VehicleTelemetrySample
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -57,16 +64,6 @@ class HomeViewModelTest {
         override suspend fun saveTransition(transition: IncidentStateTransition) {}
     }
 
-    private class FakeNetworkStatusManager : NetworkStatusManager(FakeContext()) {
-        val networkFlow = MutableStateFlow(NetworkStatusSample(System.currentTimeMillis(), isOnline = true))
-        override fun observeNetwork(): Flow<NetworkStatusSample> = networkFlow
-    }
-
-    private class FakeBatteryStatusManager : BatteryStatusManager(FakeContext()) {
-        val batteryFlow = MutableStateFlow(BatteryStatusSample(System.currentTimeMillis(), batteryPercentage = 85, isCharging = false))
-        override fun observeBattery(): Flow<BatteryStatusSample> = batteryFlow
-    }
-
     private class FakeServiceStateRepository : ServiceStateRepository {
         val serviceRunningFlow = MutableStateFlow(true)
         override val isServiceRunningFlow: Flow<Boolean> = serviceRunningFlow
@@ -75,22 +72,52 @@ class HomeViewModelTest {
         }
     }
 
-    private class FakeContext : android.content.ContextWrapper(null)
+    private class FakeSensorRepository : SensorRepository {
+        override fun observeMotion(): Flow<MotionSensorSample> = flowOf()
+        override fun observeGps(): Flow<GpsLocationSample> = flowOf()
+        override fun observeBattery(): Flow<BatteryStatusSample> = flowOf(BatteryStatusSample(System.currentTimeMillis(), 85, false))
+        override fun observeNetwork(): Flow<NetworkStatusSample> = flowOf(NetworkStatusSample(System.currentTimeMillis(), true))
+        override fun observeVehicleTelemetry(): Flow<VehicleTelemetrySample> = flowOf()
+        override fun observeDms(): Flow<DmsSample> = flowOf()
+        override fun observeSensorSnapshot(): Flow<SensorSnapshot> = flowOf(
+            SensorSnapshot(
+                battery = BatteryStatusSample(System.currentTimeMillis(), 85, false),
+                network = NetworkStatusSample(System.currentTimeMillis(), true)
+            )
+        )
+    }
+
+    private class FakeDriverStateEngine : DriverStateEngine {
+        override fun process(sample: DmsSample): DriverState {
+            return DriverState(
+                timestamp = System.currentTimeMillis(),
+                attentionScore = 0.95f,
+                perclos = 0.05f,
+                blinkRate = 15f,
+                yawnDetected = false,
+                gazeAwayDurationMs = 0L,
+                headPitch = 0f, headYaw = 0f, headRoll = 0f,
+                gazeDirection = "FORWARD",
+                isResponsive = true,
+                condition = DriverCondition.ALERT
+            )
+        }
+    }
 
     @Test
     fun testLiveAnomalyConfidenceAndServiceRunningMapping() = runTest {
         val incidentRepo = FakeIncidentRepository()
         val timelineRepo = FakeTimelineRepository()
         val stateMachine = IncidentStateMachine(incidentRepo, timelineRepo)
-        val networkManager = FakeNetworkStatusManager()
-        val batteryManager = FakeBatteryStatusManager()
         val statusHolder = LiveAnomalyStatusHolder()
         val serviceRepo = FakeServiceStateRepository()
+        val sensorRepo = FakeSensorRepository()
+        val driverStateEngine = FakeDriverStateEngine()
 
         val viewModel = HomeViewModel(
             stateMachine,
-            networkManager,
-            batteryManager,
+            sensorRepo,
+            driverStateEngine,
             statusHolder,
             serviceRepo
         )

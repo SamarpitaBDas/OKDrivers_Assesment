@@ -124,8 +124,25 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
 
         tvNetwork.text = if (state.isOnline) "Online" else "Offline"
-        tvDriverState.text = "State: ${state.emergencyState.name}"
-        tvVehicleHealth.text = "Battery: ${state.batteryPercentage}%${if (state.isCharging) " (Charging)" else ""}"
+
+        val scorePercent = (state.driverAttentionScore * 100f).toInt().coerceIn(0, 100)
+        tvDriverState.text = "Driver: ${state.driverCondition.name} ($scorePercent%)"
+        val driverColor = when (state.driverCondition) {
+            com.example.okdrivers.domain.model.DriverCondition.ALERT -> ContextCompat.getColor(requireContext(), R.color.ok_green)
+            com.example.okdrivers.domain.model.DriverCondition.DROWSY,
+            com.example.okdrivers.domain.model.DriverCondition.DISTRACTED -> ContextCompat.getColor(requireContext(), R.color.ok_orange)
+            com.example.okdrivers.domain.model.DriverCondition.UNRESPONSIVE -> ContextCompat.getColor(requireContext(), R.color.ok_red)
+            else -> ContextCompat.getColor(requireContext(), R.color.ok_secondary)
+        }
+        tvDriverState.setTextColor(driverColor)
+
+        tvVehicleHealth.text = "Vehicle: ${state.telemetryStatusText}"
+        val vehicleColor = when {
+            state.telemetryIsCritical -> ContextCompat.getColor(requireContext(), R.color.ok_red)
+            state.telemetryStatusText.contains("Hard Braking") -> ContextCompat.getColor(requireContext(), R.color.ok_orange)
+            else -> ContextCompat.getColor(requireContext(), R.color.ok_green)
+        }
+        tvVehicleHealth.setTextColor(vehicleColor)
 
         // Service Toggle handling with listener re-entrance guard
         if (switchSafetyService?.isChecked != state.serviceRunning) {

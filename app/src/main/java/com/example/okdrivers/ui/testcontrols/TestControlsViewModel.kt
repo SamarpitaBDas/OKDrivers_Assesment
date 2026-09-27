@@ -72,6 +72,7 @@ class TestControlsViewModel @Inject constructor(
     fun triggerHardBraking() {
         vehicleTelemetrySimulator.injectAnomaly(VehicleTelemetrySimulator.AnomalyType.HARD_BRAKING)
         motionSensorManager.injectSimulatedGForce(0.85f)
+        dmsSimulator.clearAnomaly()
         liveAnomalyStatusHolder.updateConfidence(0.65f)
         activeScenarioNameFlow.value = "2. 0.8G Hard Brake"
         statusMessageFlow.value = "Scenario 2: 0.8G Hard Brake injected (65% confidence, no escalation)"
@@ -89,6 +90,7 @@ class TestControlsViewModel @Inject constructor(
     fun triggerDriverResponds() {
         demoController.setForceSimulatedMode(true)
         demoController.setNextSimulatedResponse("I'm okay")
+        dmsSimulator.clearAnomaly()
         activeScenarioNameFlow.value = "4. Driver Responds (\"I'm okay\")"
         statusMessageFlow.value = "Scenario 4: Set next simulated voice response to \"I'm okay\""
     }
@@ -96,6 +98,7 @@ class TestControlsViewModel @Inject constructor(
     fun triggerDriverSilent() {
         demoController.setForceSimulatedMode(true)
         demoController.setNextSimulatedResponse(null)
+        dmsSimulator.injectAnomaly(DmsSimulator.AnomalyType.UNRESPONSIVE)
         activeScenarioNameFlow.value = "5. Driver Silent / Unresponsive"
         statusMessageFlow.value = "Scenario 5: Set next simulated voice response to Silence (letting 3 attempts exhaust)"
     }
@@ -126,6 +129,7 @@ class TestControlsViewModel @Inject constructor(
     fun triggerAirbagEvent() {
         vehicleTelemetrySimulator.injectAnomaly(VehicleTelemetrySimulator.AnomalyType.AIRBAG_DEPLOYED)
         motionSensorManager.injectSimulatedGForce(3.5f)
+        dmsSimulator.injectAnomaly(DmsSimulator.AnomalyType.UNRESPONSIVE)
         liveAnomalyStatusHolder.updateConfidence(0.99f)
         activeScenarioNameFlow.value = "8. Critical / Airbag Event"
         statusMessageFlow.value = "Scenario 8: Critical Airbag Event injected — immediate escalation"
