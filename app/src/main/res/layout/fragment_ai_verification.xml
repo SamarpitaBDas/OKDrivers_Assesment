@@ -255,7 +255,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Demo Simulation Controls (Section 22)"
+                    android:text="Demo Simulation Controls"
                     android:textColor="@color/ok_orange"
                     android:textSize="14sp"
                     android:textStyle="bold" />

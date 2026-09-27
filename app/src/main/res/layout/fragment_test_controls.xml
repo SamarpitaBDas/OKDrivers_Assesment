@@ -34,7 +34,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
-                android:text="Test Scenario Controls (Section 18)"
+                android:text="Test Scenario Controls"
                 android:textColor="@android:color/white"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -125,7 +125,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Mandatory Section 18 Scenarios"
+                    android:text="Test Scenarios"
                     android:textColor="#90A4AE"
                     android:textSize="13sp"
                     android:textStyle="bold" />

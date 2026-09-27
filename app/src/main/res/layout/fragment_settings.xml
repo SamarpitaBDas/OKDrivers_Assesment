@@ -324,7 +324,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginStart="14dp"
-                    android:text="Test Scenario Controls (Section 18)"
+                    android:text="Test Scenario Controls"
                     android:textColor="@color/ok_text"
                     android:textSize="14sp"
                     android:textStyle="bold" />

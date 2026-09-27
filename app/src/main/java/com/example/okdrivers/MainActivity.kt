@@ -1,6 +1,7 @@
 package com.example.okdrivers
 
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
@@ -28,5 +29,19 @@ class MainActivity : AppCompatActivity() {
             )
 
         bottomNavigation.setupWithNavController(navController)
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.homeFragment,
+                R.id.logsFragment,
+                R.id.communityFragment,
+                R.id.settingsFragment -> {
+                    bottomNavigation.visibility = View.VISIBLE
+                }
+                else -> {
+                    bottomNavigation.visibility = View.GONE
+                }
+            }
+        }
     }
 }

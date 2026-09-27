@@ -87,6 +87,7 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/tvSystemStatusTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="All Systems Normal"
@@ -95,6 +96,7 @@
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/tvSystemStatusSubtitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"

@@ -44,6 +44,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private lateinit var tvLatitude: TextView
     private lateinit var tvLongitude: TextView
     private lateinit var tvNetwork: TextView
+    private var tvSystemStatusTitle: TextView? = null
+    private var tvSystemStatusSubtitle: TextView? = null
 
     private var switchSafetyService: MaterialSwitch? = null
     private var tvServiceStatus: TextView? = null
@@ -78,6 +80,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         cardLocation = view.findViewById(R.id.cardLocation)
         cardNetwork = view.findViewById(R.id.cardNetwork)
 
+        tvSystemStatusTitle = view.findViewById(R.id.tvSystemStatusTitle)
+        tvSystemStatusSubtitle = view.findViewById(R.id.tvSystemStatusSubtitle)
         tvDriverState = view.findViewById(R.id.tvDriverState)
         tvVehicleHealth = view.findViewById(R.id.tvVehicleHealth)
         tvLatitude = view.findViewById(R.id.tvLatitude)
@@ -102,6 +106,15 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun renderUiState(state: HomeUiState) {
+        val isNormal = state.emergencyState == com.example.okdrivers.domain.model.EmergencyState.NORMAL_OPERATION
+        if (isNormal) {
+            tvSystemStatusTitle?.text = "All Systems Normal"
+            tvSystemStatusSubtitle?.text = "Monitoring your drive..."
+        } else {
+            tvSystemStatusTitle?.text = "Emergency Active: ${state.emergencyState.name}"
+            tvSystemStatusSubtitle?.text = "Tap to view incident details & AI exchange"
+        }
+
         tvNetwork.text = if (state.isOnline) "Online" else "Offline"
         tvDriverState.text = "State: ${state.emergencyState.name}"
         tvVehicleHealth.text = "Battery: ${state.batteryPercentage}%${if (state.isCharging) " (Charging)" else ""}"
