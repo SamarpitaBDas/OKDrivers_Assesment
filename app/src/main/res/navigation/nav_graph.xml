@@ -60,4 +60,14 @@
         android:name="com.example.okdrivers.ui.DriverStateFragment"
         android:label="fragment_driver_state"
         tools:layout="@layout/fragment_driver_state" />
+    <fragment
+        android:id="@+id/liveDrivingFragment"
+        android:name="com.example.okdrivers.ui.LiveDrivingFragment"
+        android:label="fragment_live_driving"
+        tools:layout="@layout/fragment_live_driving" />
+    <fragment
+        android:id="@+id/sensorDataFragment"
+        android:name="com.example.okdrivers.ui.SensorDataFragment"
+        android:label="fragment_sensor_data"
+        tools:layout="@layout/fragment_sensor_data" />
 </navigation>

@@ -8,7 +8,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.example.okdrivers.R
+import com.google.android.material.button.MaterialButton
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -21,11 +23,17 @@ class SensorDataFragment : Fragment(R.layout.fragment_sensor_data) {
 
     private val viewModel: SensorDataViewModel by viewModels()
     private var tvSensorContent: TextView? = null
+    private var btnBack: MaterialButton? = null
     private val timeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         tvSensorContent = view.findViewById(R.id.tvSensorContent)
+        btnBack = view.findViewById(R.id.btnBack)
+
+        btnBack?.setOnClickListener {
+            findNavController().navigateUp()
+        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {

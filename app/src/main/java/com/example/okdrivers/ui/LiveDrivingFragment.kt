@@ -8,7 +8,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.example.okdrivers.R
+import com.google.android.material.button.MaterialButton
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -19,13 +21,19 @@ class LiveDrivingFragment : Fragment(R.layout.fragment_live_driving) {
 
     private val viewModel: LiveDrivingViewModel by viewModels()
 
+    private var btnBack: MaterialButton? = null
     private var tvTelemetryPrimary: TextView? = null
     private var tvTelemetrySecondary: TextView? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        btnBack = view.findViewById(R.id.btnBack)
         tvTelemetryPrimary = view.findViewById(R.id.tvTelemetryPrimary)
         tvTelemetrySecondary = view.findViewById(R.id.tvTelemetrySecondary)
+
+        btnBack?.setOnClickListener {
+            findNavController().navigateUp()
+        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {

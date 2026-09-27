@@ -172,10 +172,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         cardLocation.setOnClickListener {
             checkLocationPermission()
+            Toast.makeText(requireContext(), "GPS Location active & monitored", Toast.LENGTH_SHORT).show()
         }
 
         cardNetwork.setOnClickListener {
-            Toast.makeText(requireContext(), "Network status is monitored automatically", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Network status monitored automatically (${if (viewModel.uiState.value.isOnline) "Online" else "Offline"})", Toast.LENGTH_SHORT).show()
         }
     }
 

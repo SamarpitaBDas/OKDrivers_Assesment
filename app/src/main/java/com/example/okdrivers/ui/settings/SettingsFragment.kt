@@ -27,6 +27,8 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     private var cardProfile: MaterialCardView? = null
     private var cardProfileVehicle: MaterialCardView? = null
     private var cardBaselines: MaterialCardView? = null
+    private var cardLiveDriving: MaterialCardView? = null
+    private var cardSensorData: MaterialCardView? = null
     private var cardTestControls: MaterialCardView? = null
     private var cardNotifications: MaterialCardView? = null
     private var cardVoiceAudio: MaterialCardView? = null
@@ -40,6 +42,8 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         cardProfile = view.findViewById(R.id.cardProfile)
         cardProfileVehicle = view.findViewById(R.id.cardProfileVehicle)
         cardBaselines = view.findViewById(R.id.cardBaselines)
+        cardLiveDriving = view.findViewById(R.id.cardLiveDriving)
+        cardSensorData = view.findViewById(R.id.cardSensorData)
         cardTestControls = view.findViewById(R.id.cardTestControls)
         cardNotifications = view.findViewById(R.id.cardNotifications)
         cardVoiceAudio = view.findViewById(R.id.cardVoiceAudio)
@@ -77,6 +81,14 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
         cardBaselines?.setOnClickListener {
             findNavController().navigate(R.id.baselineAnalyticsFragment)
+        }
+
+        cardLiveDriving?.setOnClickListener {
+            findNavController().navigate(R.id.liveDrivingFragment)
+        }
+
+        cardSensorData?.setOnClickListener {
+            findNavController().navigate(R.id.sensorDataFragment)
         }
 
         cardTestControls?.setOnClickListener {
